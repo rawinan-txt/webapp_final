@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ITDS241 สรุปปลายภาค</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/*
+VOICE: เพื่อนที่จดเลคเชอร์เก่ง สรุปตรงประเด็น เน้นสิ่งที่ออกสอบ
+IDEA: เส้นทางของ request หนึ่งครั้ง จาก browser ผ่าน Express ไปถึง MySQL แล้วกลับมา ซึ่งทุกเลคเชอร์คือหนึ่งสถานีบนเส้นทางนี้
+PICTURE: แผนผัง pipeline ที่กดแต่ละสถานีแล้วกระโดดไปบทนั้นได้
+COLOUR and TYPE: พื้นขาว หมึกเขียวเข้ม สีเขียว Node เป็นสีหลัก ฟ้า React ใช้กับ L14 สีส้มแดงใช้กับกับดักข้อสอบ ฟอนต์ IBM Plex Sans Thai คู่กับ JetBrains Mono
+LAYOUT: แถบหัวเต็มความกว้าง แถวลิงก์ไปแต่ละบท แต่ละบทมีสรุป โค้ด กับดัก แลป ปิดท้ายด้วยคลังข้อสอบ
+*/
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0f1512);--ink:light-dark(#14201a,#e6efe9);--soft:light-dark(#4a5a51,#a9bab0);
+--line:light-dark(#dfe6e1,#25332c);--card:light-dark(#f4f7f5,#16201b);
+--node:light-dark(#2e7d32,#6cc070);--nodebg:light-dark(#1f5e24,#163b19);
+--react:light-dark(#0a78a0,#5cc8ec);--trap:light-dark(#c2410c,#ff8a4c);--trapbg:light-dark(#fff3ec,#2a1a10);
+--code:light-dark(#0f1a14,#0a0f0c);--codeink:#d8eadc}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:72px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.65 "IBM Plex Sans Thai",system-ui,sans-serif;overflow-x:clip}
+code,pre{font-family:"JetBrains Mono",ui-monospace,monospace}
+code{font-size:.88em;background:var(--card);border:1px solid var(--line);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.band{padding:clamp(28px,4vw,56px) max(5vw,16px)}
+.wrap{max-width:1180px;margin:0 auto}
+header.band{background:var(--nodebg);color:#eef7ef;padding-bottom:28px}
+header h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 10px;text-wrap:balance;font-weight:700}
+header p{margin:0;max-width:62ch;color:#cfe6d2}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font-size:13.5px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:4px 10px;border-radius:99px}
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:26px;position:relative}
+.pipe a{display:flex;flex-direction:column;gap:4px;text-decoration:none;color:#14201a;background:#f3faf3;border-radius:12px;padding:14px 12px 12px;border-bottom:4px solid #9fd3a2;position:relative;min-height:118px;transition:transform .15s}
+.pipe a:hover,.pipe a:focus-visible{transform:translateY(-3px);outline:none;border-bottom-color:#fff}
+.pipe a.r{border-bottom-color:#7fd3ef;background:#eefaff}
+.pipe b{font-size:12.5px;color:#2e7d32;font-weight:700}.pipe a.r b{color:#0a78a0}
+.pipe strong{font-size:16px;line-height:1.25}
+.pipe span{font-size:13px;color:#4a5a51;line-height:1.35}
+.pipe a:not(:last-child)::after{content:"";position:absolute;right:-9px;top:50%;width:8px;height:2px;background:#9fd3a2}
+.flowcap{font-size:13.5px;color:#cfe6d2;margin-top:12px}
+@media(max-width:900px){.pipe{grid-template-columns:repeat(3,minmax(0,1fr))}.pipe a::after{display:none}}
+@media(max-width:520px){.pipe{grid-template-columns:repeat(2,minmax(0,1fr))}.pipe a{min-height:0}}
+.view{display:none}.view.on{display:block}
+nav.scroll a[aria-current=page]{border-color:var(--node);background:light-dark(#e8f5e9,#173a1a);color:var(--node);font-weight:600}
+nav.scroll a.q[aria-current=page]{background:var(--node);color:var(--bg)}
+.pager{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px;padding-top:22px;border-top:1px solid var(--line);max-width:920px}
+.pager a{flex:1 1 220px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-height:44px;display:flex;flex-direction:column}
+.pager a small{color:var(--soft);font-size:13px}
+.pager a:hover,.pager a:focus-visible{border-color:var(--node);outline:none}
+.pager a.go{background:var(--node);border-color:var(--node);color:var(--bg)}.pager a.go small{color:inherit;opacity:.85}
+.pager a.next{text-align:right}
+.homelist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.homelist a{text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-height:44px}
+.homelist a:hover{border-color:var(--node)}
+.homelist b{display:block}
+.homelist span{color:var(--soft);font-size:14px}
+/* nav */
+nav.scroll{display:flex;gap:6px;overflow-x:auto;padding:10px max(5vw,16px);background:var(--bg);border-bottom:1px solid var(--line)}
+nav.scroll a{flex:none;text-decoration:none;color:var(--ink);font-size:14.5px;padding:8px 13px;border-radius:99px;border:1px solid var(--line);min-height:40px;display:flex;align-items:center}
+nav.scroll a:hover,nav.scroll a:focus-visible{border-color:var(--node);color:var(--node);outline:none}
+nav.scroll a.q{background:var(--node);color:var(--bg);border-color:var(--node)}
+@media(min-width:900px){nav.scroll{position:sticky;top:0;z-index:5}}
+/* sections */
+section.lec{border-bottom:1px solid var(--line)}
+.lhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:6px}
+.tag{font:600 13px "JetBrains Mono",monospace;color:var(--node);border:1.5px solid var(--node);padding:2px 8px;border-radius:6px}
+.lec.react .tag{color:var(--react);border-color:var(--react)}
+h2{font-size:clamp(26px,3.4vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--soft);margin:6px 0 22px;max-width:70ch}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:0;max-width:920px}
+@media(max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+h3{font-size:18px;margin:22px 0 8px;line-height:1.3}
+.grid>div>h3:first-child{margin-top:0}
+ul.k{margin:0;padding-left:1.15em}ul.k li{margin:4px 0}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:8px 0}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{font-weight:700;background:var(--card)}
+.codebox{position:relative;margin:8px 0 14px}
+.codebox .cap{font:600 12.5px "JetBrains Mono",monospace;color:var(--soft);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.codebox button{font:500 12.5px "IBM Plex Sans Thai",sans-serif;background:transparent;color:var(--soft);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer;min-height:30px}
+.codebox button:hover{color:var(--node);border-color:var(--node)}
+pre{overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;background:var(--code);color:var(--codeink);padding:14px 16px;border-radius:10px;font-size:13.5px;line-height:1.55;tab-size:2}
+pre .c{color:#7f9c88}pre .s{color:#f2c98a}pre .kw{color:#8fd694}
+.step{margin:0 0 26px}
+.step h3{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+.step .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--node);color:var(--bg);font:700 14px "JetBrains Mono",monospace;display:grid;place-items:center}
+.lec.react .step .n{background:var(--react)}
+.step p{margin:6px 0 10px;max-width:68ch}
+.trap{background:var(--trapbg);border-left:4px solid var(--trap);border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0}
+.trap h3{margin:0 0 6px;color:var(--trap);font-size:16.5px}
+.trap ul{margin:0;padding-left:1.1em}.trap li{margin:3px 0}
+.lab{border:1.5px dashed var(--node);border-radius:12px;padding:14px 16px;margin-top:16px}
+.lec.react .lab{border-color:var(--react)}
+.lab h3{margin:0 0 6px;font-size:16.5px}
+.lab p{margin:6px 0}
+details{margin-top:8px}summary{cursor:pointer;font-weight:600;color:var(--node);min-height:32px;display:flex;align-items:center}
+.lec.react summary{color:var(--react)}
+/* quiz */
+#quiz{background:var(--card)}
+.qbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 18px}
+.qbar button{font:500 14.5px "IBM Plex Sans Thai",sans-serif;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;min-height:42px}
+.qbar button[aria-pressed=true]{background:var(--node);border-color:var(--node);color:var(--bg)}
+.qbar button:focus-visible,.opt:focus-visible{outline:3px solid var(--node);outline-offset:2px}
+.score{margin-left:auto;font-weight:700;font-size:17px;white-space:nowrap}
+.score small{font-weight:400;color:var(--soft);font-size:14px}
+.qs{display:grid;gap:14px}
+.q{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px}
+.q .qt{font-weight:600;margin-bottom:10px}
+.q .ql{font:600 12px "JetBrains Mono",monospace;color:var(--soft);margin-bottom:4px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;font:15.5px/1.45 "IBM Plex Sans Thai",sans-serif;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;min-height:44px}
+.opt:hover:not(:disabled){border-color:var(--node)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--node);background:light-dark(#e8f5e9,#173a1a);font-weight:600}
+.opt.no{border-color:var(--trap);background:var(--trapbg)}
+.exp{margin-top:10px;font-size:15px;color:var(--soft);display:none}
+.q.done .exp{display:block}
+.exp b{color:var(--ink)}
+footer{padding:28px max(5vw,16px);color:var(--soft);font-size:14px}
+@media(max-width:600px){pre{font-size:12.5px;padding:12px}table{font-size:13px}.score{margin-left:0;width:100%}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.pipe a{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="view" id="home"><header class="band">
+<div class="wrap">
+<h1>ITDS241 สรุปปลายภาค: เขียนโค้ดตั้งแต่ Node.js ถึง React</h1>
+<p>สรุปจากสไลด์ Lect09 ถึง Lect14 และแลปที่ทำมาทั้ง 6 ตัว แต่ละบทสอนด้วยการเขียนโค้ดทีละขั้น อ่านคอมเมนต์ในโค้ดไปพร้อมกัน จบแล้วลองทำข้อสอบฝึกท้ายหน้า</p>
+<div class="meta"><span class="chip">สอบวันจันทร์</span><span class="chip">6 เลคเชอร์ 6 แลป</span><span class="chip">ข้อสอบฝึก 65 ข้อ</span></div>
+<div class="pipe" aria-label="เส้นทางของ request ผ่านเนื้อหาแต่ละบท">
+<a href="#l09"><b>L09</b><strong>Node.js + http</strong><span>runtime, module, fs, server แรก</span></a>
+<a href="#l10"><b>L10</b><strong>Express</strong><span>routing, static, form GET/POST</span></a>
+<a href="#l11"><b>L11</b><strong>State + DB</strong><span>.env, cookie, session, mysql2</span></a>
+<a href="#l12"><b>L12</b><strong>HTTP + REST</strong><span>JSON, storage, REST, fetch</span></a>
+<a href="#l13"><b>L13</b><strong>REST API ด้วย Node</strong><span>CRUD, CORS, JWT, Axios</span></a>
+<a href="#l14" class="r"><b>L14</b><strong>React</strong><span>JSX, props, state, event, form</span></a>
+</div>
+<p class="flowcap">Browser ส่ง request → Express จัด route และ middleware → คุยกับ MySQL → ตอบกลับเป็น HTML หรือ JSON → React แสดงผล</p>
+</div>
+</header>
+<div class="band"><div class="wrap"><h2 style="font-size:24px;margin-bottom:12px">ทางลัด</h2><div class="homelist"><a href="#cheat"><b>ชีทท่องจำ</b><span>ตารางเดียว อ่านก่อนเข้าห้องสอบ</span></a><a href="#quiz"><b>ข้อสอบฝึกทุกบท</b><span>65 ข้อ มีเฉลยทันที</span></a></div></div></div></div>
+
+<nav class="scroll" aria-label="ไปยังบท">
+<a href="#home">หน้าแรก</a><a href="#l09">L09 Node.js</a><a href="#l10">L10 Express</a><a href="#l11">L11 Cookie/Session/DB</a><a href="#l12">L12 Web Services</a><a href="#l13">L13 WS + Node</a><a href="#l14">L14 React</a><a href="#cheat">ชีทท่องจำ</a><a href="#quiz" class="q">ข้อสอบฝึก</a>
+</nav>
+
+<!-- ================= L09 ================= -->
+<section class="lec band view" id="l09"><div class="wrap">
+<div class="lhead"><span class="tag">Lect09</span><h2>Node.js Part I: เขียน server ตัวแรกด้วยมือเปล่า</h2></div>
+<p class="lede">Node.js เป็นตัวรัน JavaScript นอก browser สร้างอยู่บน V8 engine ของ Chrome บทนี้เราจะเขียนตั้งแต่ Hello World ไปจนได้ server ที่แยกหน้าตาม URL ได้ โดยยังไม่ใช้ Express</p>
+<div class="grid"><div>
+
+<div class="step"><h3><span class="n">1</span>รันไฟล์แรก</h3>
+<p>เขียน JS ปกติ เซฟเป็น .js แล้วสั่ง <code>node ชื่อไฟล์.js</code> ใน terminal ผลจะออกที่ terminal ไม่ได้ออกที่ browser</p>
+<div class="codebox"><div class="cap">helloworld.js</div><pre><script type="text/plain">console.log("Hello World!!");   // ออกที่ terminal
+// console ตัวนี้เป็นของ Node เอง ไม่ใช่ window.console
+// เพราะ Node ไม่มี window, ไม่มี document, ไม่มี DOM เลย
+
+console.log(__dirname);    // โฟลเดอร์ที่ไฟล์นี้อยู่
+console.log(__filename);   // path เต็มของไฟล์นี้
+// สองตัวนี้เป็น global object ใช้ได้เลยไม่ต้อง require
+// global ตัวอื่นที่ควรรู้: require, module, exports, process</script></pre></div>
+<p>ทำไม Node เร็วกับงานเว็บ? มันมี thread หลักตัวเดียว (single-thread event loop) พอ request เข้ามา มันส่งงานช้า ๆ อย่างอ่านไฟล์หรือ query DB ออกไปทำ แล้วหันไปรับ request ถัดไปทันทีโดยไม่รอ (non-blocking) งานไหนเสร็จก็ค่อยตอบกลับ เลยเหมาะกับแอปที่ I/O เยอะ, real-time, JSON API แต่ถ้าเป็นงานคำนวณหนัก ๆ thread ตัวเดียวจะค้าง Node จึงไม่เหมาะ</p></div>
+
+<div class="step"><h3><span class="n">2</span>แยกโค้ดเป็น module</h3>
+<p>ใน Node ทุกไฟล์คือ module ตัวแปรในไฟล์หนึ่งมองไม่เห็นจากอีกไฟล์ จะแชร์ต้อง export แล้วอีกฝั่ง require เข้ามา</p>
+<div class="codebox"><div class="cap">hello.js · message/msg.js · greet.js</div><pre><script type="text/plain">// ---------- hello.js ----------
+function sayHello() { console.log("Hello"); }
+module.exports.sayHi = sayHello;     // ส่งออกในชื่อ sayHi (ชื่อข้างนอกไม่ต้องตรงกับข้างใน)
+
+// ---------- message/msg.js ----------
+module.exports = "Hello World!";     // ส่งออกทั้งก้อนเป็นค่าเดียว
+
+// ---------- greet.js ----------
+const eng = require("./hello");          // ./ = path แบบ relative, ไม่ต้องใส่ .js
+const msg = require("./message/msg");
+eng.sayHi();          // Hello        ← เรียกผ่านชื่อที่ export ไว้
+console.log(msg);     // Hello World!</script></pre></div></div>
+
+<div class="step"><h3><span class="n">3</span>ใช้ built-in module: path กับ url</h3>
+<div class="codebox"><div class="cap">path.js · url.js</div><pre><script type="text/plain">const path = require('path');
+path.resolve(__filename);          // /Users/demo/path.js   (absolute path)
+path.extname(__filename);          // .js
+path.parse('/Users/demo/path.js');
+// { root:'/', dir:'/Users/demo', base:'path.js', ext:'.js', name:'path' }
+//   base = ชื่อ+นามสกุล      name = ชื่ออย่างเดียว   ← ข้อสอบชอบถาม
+path.join(__dirname, 'test.js');   // ต่อ path ให้ถูกทุก OS
+
+const u = new URL('https://www.covid19.com:8080/p/a/t/h?country=TH&time=now');
+u.protocol    // 'https:'
+u.host        // 'www.covid19.com:8080'   (host รวม port)
+u.port        // '8080'
+u.pathname    // '/p/a/t/h'
+u.search      // '?country=TH&time=now'
+u.searchParams.get('time')   // 'now'</script></pre></div></div>
+</div><div>
+
+<div class="step"><h3><span class="n">4</span>อ่านไฟล์ด้วย fs แบบ async และ sync</h3>
+<p>fs มีทุกคำสั่งเป็นคู่ เช่น readFile กับ readFileSync, writeFile, appendFile, unlink (ลบไฟล์), rename แบบ async ใส่ callback แล้วโค้ดวิ่งต่อเลย แบบ Sync จะหยุดรอจนเสร็จ</p>
+<div class="codebox"><div class="cap">fs.js</div><pre><script type="text/plain">const fs = require("fs");
+const path = require("path");
+const r1 = path.join(__dirname, "src/README.txt");
+
+// async: callback ได้ (err, contents)
+fs.readFile(r1, "utf8", function (err, contents) {
+  if (err) console.log("Error: ", err);
+  else console.log(contents);
+});
+// ถ้าเรียก readFile 3 ไฟล์ติดกัน ลำดับที่พิมพ์ออกมา "ไม่แน่นอน"
+// ไฟล์ไหนอ่านเสร็จก่อนก็ออกก่อน
+
+// sync: ได้ลำดับแน่นอน แต่ block ทั้งโปรแกรม
+const c1 = fs.readFileSync(r1, "utf8");
+console.log(c1);
+
+// อยากได้ลำดับแบบ async ต้องซ้อน callback
+// ซ้อนหลายชั้นจน }) }) }) เป็นขั้นบันได เรียกว่า callback hell
+// ทางออกที่ดีกว่าคือ Promise หรือ async/await</script></pre></div></div>
+
+<div class="step"><h3><span class="n">5</span>เขียน server ด้วย http module</h3>
+<p>ตัวนี้คือหัวใจของบท อ่านคอมเมนต์ทีละบรรทัด ข้อสอบเขียนโค้ดมักให้เติมส่วนนี้</p>
+<div class="codebox"><div class="cap">routing.js</div><pre><script type="text/plain">const http = require("http");
+const fs = require("fs");
+
+// ทุกครั้งที่มี request เข้ามา ฟังก์ชันนี้จะถูกเรียก
+const myServer = http.createServer((req, res) => {
+  console.log("Req: " + req.url);   // req.url คือ path เช่น "/bbq"
+  console.log(req.method);          // GET, POST ...
+
+  if (req.url === "/bbq") {
+    fs.readFile("./bbq.html", (err, data) => {
+      res.statusCode = 200;                          // 200 = OK
+      res.setHeader("Content-Type", "text/html");    // บอกว่าส่ง HTML
+      res.write(data);
+      res.end();                                     // ปิด response (ลืมแล้ว browser ค้าง)
+    });
+  } else if (req.url === "/hello") {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "text/plain");     // ข้อความธรรมดา
+    res.end("Hello World!");                         // end ใส่ข้อความได้เลย
+  } else {
+    res.statusCode = 404;                            // ไม่เจอ path
+    res.setHeader("Content-Type", "text/plain");
+    res.end("Invalid requested :(");
+  }
+});
+
+// ผูก server กับ port แล้วรอ request
+myServer.listen(8081, () => console.log("Listening on the port 8081"));
+// เปิด http://localhost:8081 ครั้งเดียว จะเห็น log 2 บรรทัด: "/" กับ "/favicon.ico"
+// กด Ctrl+C เพื่อหยุด server</script></pre></div></div>
+
+<div class="trap"><h3>จุดที่ข้อสอบชอบหลอก</h3><ul>
+<li>ถามว่าอะไรใช้ใน Node ไม่ได้ คำตอบคือ document, window และของที่ผูกกับ DOM</li>
+<li>http module ใช้ <code>req.url</code> ส่วน <code>req.path</code> เป็นของ Express</li>
+<li>readFile แบบ async หลายไฟล์ ลำดับผลลัพธ์เดาไม่ได้</li>
+</ul></div>
+
+<div class="lab"><h3>Lab09: Hello server</h3>
+<p>โจทย์คือ port 8081, <code>/hello</code> ตอบ plain text <code>Hello from Server: {Date.now()}</code>, <code>/signin</code> ส่ง sign-in.html, path อื่นส่ง error.html พร้อมสถานะ 404 และ log <code>Req: {url}</code> ทุกครั้ง</p>
+<details><summary>ดูเฉลยแบบสั้น</summary>
+<div class="codebox"><div class="cap">server.js</div><pre><script type="text/plain">const http = require("http"), fs = require("fs"), path = require("path");
+
+http.createServer((req, res) => {
+  console.log(`Req: ${req.url}`);           // log ตาม path จริง
+  if (req.url === "/hello") {
+    const msg = `Hello from Server: ${Date.now()}`;
+    console.log(msg);
+    res.writeHead(200, { "Content-Type": "text/plain" });   // writeHead = ตั้ง status+header ทีเดียว
+    res.end(msg);
+  } else {
+    const ok = req.url === "/signin";
+    fs.readFile(path.join(__dirname, ok ? "sign-in.html" : "error.html"), (err, data) => {
+      res.writeHead(ok ? 200 : 404, { "Content-Type": "text/html" });
+      res.end(data);
+    });
+  }
+}).listen(8081, () => console.log("Listening on the port 8081"));</script></pre></div>
+<p>เทียบกับงานที่ส่งไป: /hello ควรเป็น text/plain ตามโจทย์ และ log ควรใช้ <code>req.url</code> แทนการพิมพ์ path ตายตัว (ในงานเดิมมี "/sigin" พิมพ์ผิดอยู่)</p>
+</details></div>
+</div></div>
+</div></section>
+
+<!-- ================= L10 ================= -->
+<section class="lec band view" id="l10"><div class="wrap">
+<div class="lhead"><span class="tag">Lect10</span><h2>Node.js Part II: เขียน server ใหม่ด้วย Express</h2></div>
+<p class="lede">งานเดียวกับบทก่อน แต่ Express ช่วยให้เขียน route สั้นลงมาก บทนี้ทำตั้งแต่ตั้งโปรเจกต์ ทำ route, เสิร์ฟไฟล์ CSS/รูป ไปจนรับข้อมูลจาก form</p>
+<div class="grid"><div>
+
+<div class="step"><h3><span class="n">1</span>ตั้งโปรเจกต์</h3>
+<div class="codebox"><div class="cap">terminal</div><pre><script type="text/plain">npm init              # ตอบคำถาม แล้วได้ package.json (ตั้ง entry point เป็น app.js)
+npm init -y           # แบบไม่ถาม ใช้ค่า default
+npm install express   # ลง express และเพิ่มใน "dependencies"
+npm install nodemon   # แก้ไฟล์แล้ว server restart ให้เอง
+npm install           # (หลัง clone) ลงทุกอย่างตาม package.json</script></pre></div>
+<div class="codebox"><div class="cap">package.json (ส่วนที่ต้องแก้)</div><pre><script type="text/plain">"scripts": {
+  "start": "nodemon app.js"     // จากนี้สั่ง npm start แทน node app.js
+}</script></pre></div></div>
+
+<div class="step"><h3><span class="n">2</span>route แรก และ router</h3>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">const express = require('express');
+const path = require('path');
+const app = express();               // สร้างแอป Express
+const router = express.Router();     // router ไว้จัดกลุ่ม route
+app.use(router);                     // ลงทะเบียน router กับแอป
+
+router.get('/', (req, res) => {
+  res.send('Hello World from Root!');          // send = ตอบข้อความ
+});
+
+router.get('/shabu', (req, res) => {
+  // sendFile ต้องใช้ absolute path จึงต้องต่อด้วย __dirname
+  res.sendFile(path.join(__dirname, 'html', 'shabu.html'));
+});
+
+// วางไว้ท้ายสุด: path ไหนที่ไม่ตรง route ข้างบนจะตกมาที่นี่ (ทุก method)
+router.use((req, res, next) => {
+  console.log("404: Invalid accessed");
+  res.status(404).send("Invalid Path");
+});
+
+app.listen(3000, () => console.log('Server listening on port: 3000'));</script></pre></div>
+<p>คำว่า middleware ที่เจอบ่อย หมายถึงฟังก์ชันที่ได้ req, res (และ next) มาใช้ router.use ข้างบนก็เป็น middleware ตัวหนึ่ง ใน navbar ของ HTML แค่ใส่ <code>href="/shabu"</code> ให้ตรงกับ route ก็กดไปหน้านั้นได้</p></div>
+
+<div class="step"><h3><span class="n">3</span>แยก route เป็นโมดูล</h3>
+<div class="codebox"><div class="cap">modular routes</div><pre><script type="text/plain">const router1 = express.Router();
+const router2 = express.Router();
+app.use("/product", router1);     // ทุก route ใน router1 ขึ้นต้นด้วย /product
+app.use("/user", router2);
+
+router1.get('/', (req, res) => res.send("Module for product - Root"));  // /product
+router1.get('/add', (req, res) => res.send("Module for product - Add")); // /product/add
+router2.get('/add', (req, res) => res.send("Module for user - Add"));    // /user/add</script></pre></div></div>
+</div><div>
+
+<div class="step"><h3><span class="n">4</span>เสิร์ฟ CSS และรูปภาพ (static files)</h3>
+<p>ถ้า HTML อ้าง <code>../public/mystyle.css</code> ตรง ๆ จะไม่ขึ้น เพราะ browser ขอไฟล์ผ่าน server และ server ยังไม่มี route ให้ไฟล์นั้น ต้องเปิดโฟลเดอร์ static ก่อน</p>
+<div class="codebox"><div class="cap">app.js + demostatic.html</div><pre><script type="text/plain">app.use('/', express.static(path.join(__dirname, 'public')));
+
+<!-- ใน HTML: path เริ่มนับจากข้างใน public แล้ว -->
+<link rel="stylesheet" href="/mystyle.css">        <!-- ไม่ต้องเขียน /public -->
+<img src="/images/sampleImg.png"></script></pre></div></div>
+
+<div class="step"><h3><span class="n">5</span>รับข้อมูลจาก form</h3>
+<p>สองจุดที่ต้องตรงกันเสมอ: <code>action</code> ของ form ต้องตรงกับ path ของ route และ <code>method</code> ต้องตรงกับ router.get หรือ router.post ส่วนชื่อที่ใช้อ่านค่ามาจาก attribute <code>name</code> ของ input</p>
+<div class="codebox"><div class="cap">myForm.html</div><pre><script type="text/plain"><form action="/form-post" method="POST">
+  <input type="text" name="fname" value="John">   <!-- อ่านด้วย .fname -->
+  <input type="text" name="lname" value="Doe">
+  <button type="submit">Submit</button>
+</form></script></pre></div>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">// POST ส่งข้อมูลมาใน body ต้องมีตัวแกะก่อน ไม่งั้น req.body = undefined
+router.use(express.json());                          // body แบบ JSON
+router.use(express.urlencoded({ extended: true }));  // body แบบ form
+
+// GET: ข้อมูลมากับ URL  /form-get?fname=John&lname=Doe
+router.get('/form-get', (req, res) => {
+  console.log(req.query);                   // { fname: 'John', lname: 'Doe' }
+  res.send(`Form submitted by ${req.query.fname} ${req.query.lname} with ${req.method}`);
+});
+
+// POST: ข้อมูลมากับ body ไม่โผล่ใน URL
+router.post('/form-post', (req, res) => {
+  console.log(req.body);
+  res.send(`Form submitted by ${req.body.fname} ${req.body.lname} with ${req.method}`);
+});</script></pre></div>
+<table><tr><th></th><th>GET</th><th>POST</th></tr>
+<tr><td>ข้อมูลอยู่ที่</td><td>URL หลัง ?</td><td>body</td></tr>
+<tr><td>อ่านด้วย</td><td><code>req.query</code></td><td><code>req.body</code></td></tr>
+<tr><td>ต้องมี middleware</td><td>ไม่ต้อง</td><td><code>express.urlencoded</code> / <code>express.json</code></td></tr></table>
+<p>ควร validate ข้อมูลที่ browser ก่อนเท่าที่ทำได้ (HTML5 attribute, JS) และตรวจซ้ำที่ server ถ้าจะเอาไปลง database</p></div>
+
+<div class="trap"><h3>จุดที่ข้อสอบชอบหลอก</h3><ul>
+<li>POST แล้ว req.body ว่าง เพราะลืม express.urlencoded</li>
+<li>route 404 อยู่บนสุดจะดักทุก request ต้องไว้ท้ายสุด</li>
+<li>Express 4.16 ขึ้นไปมี body-parser ในตัวแล้ว เขียน express.json() ได้เลย</li>
+</ul></div>
+
+<div class="lab"><h3>Lab10: form + redirect (port 3030)</h3>
+<p><code>GET /</code> ตอบ "Hello World! in plain text" · <code>GET /signin</code> ส่ง sign-in.html ที่ form เป็น POST ไป <code>/form-submit</code> · route นั้น log อีเมลกับ timestamp แล้ว redirect ไป <code>/member</code> ซึ่งส่ง success.html · path อื่น log "404: Invalid accessed" แล้วส่ง error.html</p>
+<details><summary>ดูโค้ดหลัก</summary>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">app.use(express.urlencoded({ extended: true }));
+
+app.post('/form-submit', (req, res) => {
+  console.log("Request at /form-submit");
+  console.log(`Form submitted by ${req.body.email} at ${Date.now()}`);
+  res.redirect('/member');          // ไม่ตอบอะไร แค่สั่ง browser ไปอีก path
+});
+
+app.get('/member', (req, res) => {
+  console.log("Request at /member");
+  res.sendFile(path.join(__dirname, 'html', 'success.html'));
+});
+
+app.use((req, res) => {             // ท้ายสุดเสมอ
+  console.log(`Request at ${req.path}`);
+  console.log('404: Invalid accessed');
+  res.status(404).sendFile(path.join(__dirname, 'html', 'error.html'));
+});</script></pre></div></details></div>
+</div></div>
+</div></section>
+
+<!-- ================= L11 ================= -->
+<section class="lec band view" id="l11"><div class="wrap">
+<div class="lhead"><span class="tag">Lect11</span><h2>Node.js Part III: .env, cookie, session และต่อ MySQL</h2></div>
+<p class="lede">HTTP เป็น stateless คือ server ไม่รู้ว่า request นี้กับ request ก่อนหน้ามาจากคนเดียวกัน บทนี้ใช้ cookie กับ session มาช่วยจำ แล้วปิดท้ายด้วยการดึงข้อมูลจาก database tinycollege</p>
+<div class="grid"><div>
+
+<div class="step"><h3><span class="n">1</span>ย้ายค่าตั้งค่าไปไว้ใน .env</h3>
+<p>port, รหัส DB, secret ไม่ควรฝังในโค้ด เอาไปไว้ไฟล์ .env แล้วโหลดด้วย dotenv แอปจะย้ายไปรันเครื่องอื่นได้โดยไม่ต้องแก้โค้ด</p>
+<div class="codebox"><div class="cap">.env · app.js</div><pre><script type="text/plain"># .env  (npm install dotenv)
+PORT=3000
+SESSION_SECRET=mysecretkey
+MYSQL_HOST=localhost
+MYSQL_DATABASE=tinycollege
+
+// app.js
+require("dotenv").config();          // โหลดทุกค่าจาก .env เข้า process.env
+app.listen(process.env.PORT, () =>
+  console.log("Server listening at Port " + process.env.PORT));</script></pre></div></div>
+
+<div class="step"><h3><span class="n">2</span>Cookie: เก็บไว้ที่ browser</h3>
+<p>cookie คือข้อมูลชิ้นเล็กที่ server ฝากไว้กับ browser (ส่งไปใน header Set-Cookie) แล้ว browser แนบกลับมาทุก request ที่ไป server เดิม ใช้ทำ session management, personalization และ tracking</p>
+<div class="codebox"><div class="cap">app.js (npm install cookie-parser)</div><pre><script type="text/plain">const cp = require("cookie-parser");
+router.use(cp());                         // ไม่มีตัวนี้ req.cookies จะอ่านไม่ได้
+
+router.get('/login', (req, res) => {
+  res.cookie('tokenID', 'some-random-session-ID');   // res.cookie = สร้าง
+  res.send('Login !!');
+});
+
+router.get('/restrict', (req, res) => {
+  const tokenID = req.cookies['tokenID'];            // req.cookies = อ่าน (มี s)
+  if (tokenID) res.send('Valid Only the ones with cookie only');
+  else res.status(401).end('Error 401: You need to have our secret cookies');
+});
+
+router.get('/logout', (req, res) => {
+  res.clearCookie('tokenID');                        // ลบ
+  res.send('Logout !!');
+});
+
+res.cookie('a', 'v', { maxAge: 360000 });              // อยู่ 360000 ms นับจากตอนนี้
+res.cookie('a', 'v', { expire: 360000 + Date.now() }); // กำหนดเวลาหมดอายุ</script></pre></div></div>
+
+<div class="step"><h3><span class="n">3</span>Session: เก็บไว้ที่ server</h3>
+<p>cookie ฝั่ง client อ่านและแก้ได้ ข้อมูลที่ไม่อยากให้ผู้ใช้เห็นจึงเก็บใน session แทน</p>
+<div class="codebox"><div class="cap">app.js (npm install express-session)</div><pre><script type="text/plain">const session = require('express-session');
+router.use(session({
+  secret: process.env.SESSION_SECRET,  // ใช้ sign session ID
+  resave: false,                       // save เฉพาะตอน session ถูกแก้
+  saveUninitialized: true,             // สร้าง session ให้ทุกคน แม้ยังไม่ใช้
+}));
+// store default คือ MemoryStore ใช้ตอน dev เท่านั้น ไม่เหมาะ production
+
+router.get('/pageview', (req, res) => {
+  if (req.session.numviews) req.session.numviews++;   // เคยเข้าแล้ว บวกเพิ่ม
+  else req.session.numviews = 1;                       // เข้าครั้งแรก
+  res.send(`Visited ${req.session.numviews} times`);
+});
+// req.session.numviews อ่านได้จากทุก route ใน server</script></pre></div>
+<table><tr><th></th><th>Cookie</th><th>Session</th></tr>
+<tr><td>อยู่ที่</td><td>client</td><td>server</td></tr>
+<tr><td>package</td><td>cookie-parser</td><td>express-session</td></tr>
+<tr><td>เขียน / อ่าน</td><td><code>res.cookie()</code> / <code>req.cookies</code></td><td><code>req.session.x</code></td></tr></table></div>
+</div><div>
+
+<div class="step"><h3><span class="n">4</span>ต่อ MySQL ด้วย mysql2</h3>
+<p>ก่อนต่อได้ต้องเตรียมฝั่ง DB: รัน tinycollege.sql ใน MySQL Workbench แล้วสร้าง user ที่เมนู Server › Users and Privileges ให้สิทธิ์กับ schema ที่จะใช้</p>
+<div class="codebox"><div class="cap">app.js (npm install mysql2)</div><pre><script type="text/plain">const mysql = require('mysql2');
+const connection = mysql.createConnection({
+  host:     process.env.MYSQL_HOST,
+  user:     process.env.MYSQL_USERNAME,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,     // tinycollege
+});
+
+connection.connect(function (err) {
+  if (err) throw err;
+  console.log(`Connected DB: ${process.env.MYSQL_DATABASE}`);
+});
+
+// SELECT: results เป็น array ของแถว
+router.get("/cis-courses", (req, res) => {
+  const sql = `SELECT course_code, course_name FROM Course WHERE dept_code='CIS'`;
+  connection.query(sql, (error, results) => {
+    if (error) throw error;
+    console.log(`${results.length} rows returned`);   // 6 rows returned
+    return res.send(results);                         // ส่งกลับเป็น JSON
+  });
+});
+
+// INSERT: ดูผลจาก affectedRows
+router.get("/add241", (req, res) => {    // สไลด์ใช้ GET เพื่อสาธิต ปกติใช้ POST
+  const sql = `INSERT INTO Course VALUES('CIS-223','Introduction to Web Development',3,'CIS')`;
+  connection.query(sql, (error, results) => {
+    if (error) throw error;
+    console.log(`${results.affectedRows} record inserted`);
+    return res.redirect("/cis-courses");
+  });
+});
+
+// ค่าจากผู้ใช้ให้ใส่ผ่าน ? เสมอ (กัน SQL injection)
+connection.query('SELECT * FROM Professor WHERE emp_num = ?', [empNum], callback);</script></pre></div>
+<p>ความสัมพันธ์ใน tinycollege ที่ควรรู้: professor ทำงานใน department, แต่ละ department มี professor เป็น head, student สังกัด department และมี professor เป็น advisor, course เป็นของ department, class เป็นของ course และมี professor สอน, student กับ class เป็น many-to-many ผ่านตาราง enroll</p></div>
+
+<div class="trap"><h3>จุดที่ข้อสอบชอบหลอก</h3><ul>
+<li>สลับ cookie กับ session: cookie อยู่ client, session อยู่ server</li>
+<li><code>res.cookie</code> สร้าง, <code>req.cookies</code> อ่าน</li>
+<li>SELECT ดู <code>results.length</code> ส่วน INSERT/UPDATE/DELETE ดู <code>results.affectedRows</code></li>
+</ul></div>
+
+<div class="lab"><h3>Lab11: ค้นหาอาจารย์ใน tinycollege</h3>
+<p>port 3030, ค่า config อยู่ใน .env, <code>GET /</code> ส่ง searchProf.html ที่ form POST ไป <code>/form-submit</code> แล้ว server เอา Employee Number ไปค้นใน Professor ด้วย emp_num เจอก็ log "Found" ส่ง found.html ไม่เจอ log "Not found"</p>
+<details><summary>ดูโค้ดหลัก</summary>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">require('dotenv').config();
+app.use(express.urlencoded({ extended: true }));
+
+app.post('/form-submit', (req, res) => {
+  const empNum = req.body.emp_num;               // name="emp_num" ใน form
+  console.log(`Form submitted with Emp Num: ${empNum}`);
+  connection.query('SELECT * FROM Professor WHERE emp_num = ?', [empNum],
+    (err, results) => {
+      if (err) return res.status(500).send('Database error');
+      if (results.length > 0) {                  // มีแถวกลับมา = เจอ
+        console.log('Found'); console.log(results);
+        res.sendFile(path.join(__dirname, 'html', 'found.html'));
+      } else {
+        console.log('Not found');
+        res.sendFile(path.join(__dirname, 'html', 'notfound.html'));
+      }
+    });
+});</script></pre></div></details></div>
+</div></div>
+</div></section>
+
+<!-- ================= L12 ================= -->
+<section class="lec band view" id="l12"><div class="wrap">
+<div class="lhead"><span class="tag">Lect12</span><h2>Web Services: HTTP, JSON, REST และการเรียก API ด้วย JS</h2></div>
+<p class="lede">บทนี้ทฤษฎีเยอะที่สุด แต่เราจะดูผ่านของจริงที่วิ่งอยู่ในเครือข่าย คือหน้าตา HTTP message, JSON, storage ใน browser และโค้ดเรียก API</p>
+<div class="grid"><div>
+
+<div class="step"><h3><span class="n">1</span>ก่อนมีเว็บ: tier ต่าง ๆ</h3>
+<p>ระบบสารสนเทศมี 3 layer คือ presentation (UI), application logic และ resource management (DB) จะวางไว้กี่เครื่องเรียกเป็น tier: 1-tier รวมทุกอย่างในเครื่องเดียวแบบ mainframe ขยายยาก, 2-tier คือ client-server (UI อยู่ client, ข้อมูลอยู่ server), 3-tier แยกทั้งสาม layer เป็นอิสระ (front-end, middleware, back-end) และ N-tier หรือ distributed application ที่เพิ่ม application server หลายตัวเพื่อกระจาย business logic</p></div>
+
+<div class="step"><h3><span class="n">2</span>HTTP message หน้าตาเป็นแบบนี้</h3>
+<div class="codebox"><div class="cap">request · response</div><pre><script type="text/plain">GET / HTTP/1.1                     ← request line: method, path, version
+Host: developer.mozilla.org        ← headers
+Accept: text/html                  ← client อยากได้ชนิดไหน
+Accept-Language: fr
+                                   ← (body: ใช้กับ POST/PUT/DELETE)
+
+HTTP/1.1 200 OK                    ← status line: version, status code, status text
+Date: Sat, 09 Oct 2010 14:28:02 GMT
+Server: Apache
+Content-Type: text/html            ← body ที่ส่งมาเป็นชนิดไหน
+Content-Length: 29769
+
+<!DOCTYPE html> ...                ← response body</script></pre></div>
+<p>header อื่นที่ควรรู้: User-Agent (browser/OS ที่ส่งมา), Authorization (token สำหรับเข้า resource ที่ป้องกันไว้) สถานะหลักคือ 200 OK, 404 Not Found, 500 Internal Server Error HTTP ออกแบบให้ง่าย คนอ่านออก ขยายได้ และเป็น stateless แต่ยังมี session ได้ (ผ่าน cookie) ส่วน MIME type คือตัวบอกชนิดของเอกสาร</p></div>
+
+<div class="step"><h3><span class="n">3</span>XML กับ JSON</h3>
+<p>HTML บอกได้แค่ว่าจะแสดงผลยังไง XML จึงเกิดมาเพื่ออธิบายตัวข้อมูล tag ตั้งเองได้ โปรแกรมอ่านได้ ไม่ได้ทำมาให้ browser แสดง และมี XML Schema กำหนดชนิดข้อมูล</p>
+<div class="codebox"><div class="cap">XML · JSON</div><pre><script type="text/plain"><?xml version="1.0" encoding="ISO-8859-1"?>
+<note>                          <!-- root element -->
+  <to>Wud</to>                  <!-- child element -->
+  <body>Please buy fruits today</body>
+</note>
+
+// object literal ใน JS: key ไม่ต้องมี quote
+var wud = { firstName: "Wudhichart", age: 30, feesPaid: true };
+
+// JSON: เป็น string, key ต้องมี "double quote", ไม่มี function/undefined
+'{"people":[{"firstName":"Wudhichart","age":30},{"firstName":"Pawitra","age":30}]}'
+// ชนิดใน JSON: number, string, boolean, array, object, null
+
+const text = JSON.stringify(wud);   // object → string (serialization)
+const obj  = JSON.parse(text);      // string → object (deserialization / parsing)</script></pre></div></div>
+
+<div class="step"><h3><span class="n">4</span>เก็บข้อมูลใน browser</h3>
+<div class="codebox"><div class="cap">storage</div><pre><script type="text/plain">document.cookie = "username=Wudhichart; expires=Thu, 18 Dec 2016 12:00:00 UTC";
+
+localStorage.setItem("user", JSON.stringify(wud));   // เก็บได้แค่ string จึงต้อง stringify
+const u = JSON.parse(localStorage.getItem("user"));
+localStorage.removeItem("user");
+
+sessionStorage.setItem("step", "2");   // อยู่เฉพาะ tab นี้ refresh ยังอยู่ ปิด tab หาย</script></pre></div>
+<table><tr><th></th><th>Cookie</th><th>localStorage</th><th>sessionStorage</th></tr>
+<tr><td>ขนาด</td><td>ราว 4KB</td><td>ราว 5MB ต่อ domain</td><td>คล้าย local</td></tr>
+<tr><td>ใครเข้าถึง</td><td>client และ server</td><td>JS ฝั่ง client</td><td>JS ฝั่ง client</td></tr>
+<tr><td>หมดอายุ</td><td>ตั้งได้</td><td>อยู่จนลบ</td><td>ปิด tab แล้วหาย</td></tr>
+<tr><td>ส่งไป server เอง</td><td>ทุก request</td><td>ไม่ส่ง</td><td>ไม่ส่ง</td></tr></table></div>
+</div><div>
+
+<div class="step"><h3><span class="n">5</span>Web service และ REST</h3>
+<p>W3C นิยาม web service ว่าเป็นระบบที่ให้เครื่องคุยกับเครื่อง (machine-to-machine) ผ่าน network ข้อมูลมักเป็น XML (SOAP, POX) หรือ JSON มาตรฐานที่เกี่ยวข้องคือ SOAP, WSDL, HTTP และ REST ทุก web service เป็น API แต่ API บางตัวไม่ใช่ web service เพราะ web service ต้องใช้ network เสมอ</p>
+<p>REST เป็น architecture style ไม่ใช่ protocol และไม่ใช่มาตรฐาน มันหยิบ HTTP, URL, JSON/XML และ MIME type มาใช้ แล้วกำหนดกติกา 6 ข้อ</p>
+<table><tr><th>Constraint</th><th>แปลว่า</th></tr>
+<tr><td>Client/Server</td><td>แยก UI กับ data ให้พัฒนาแยกกันได้</td></tr>
+<tr><td>Stateless</td><td>server ไม่จำอะไร ทุก request ต้องมีข้อมูลครบ</td></tr>
+<tr><td>Cacheable</td><td>response ต้องบอกว่า cache ได้ไหม (เสี่ยงได้ข้อมูลเก่า)</td></tr>
+<tr><td>Uniform Interface</td><td>resource หนึ่งมี URI เดียว ใช้ GET/POST/PUT/DELETE แบบเดียวกันหมด</td></tr>
+<tr><td>Layered System</td><td>client ไม่รู้ว่าคุยกับ server จริงหรือตัวกลาง</td></tr>
+<tr><td>Code-On-Demand</td><td>ส่งโค้ดไปรันที่ client ได้ เป็นข้อเดียวที่ optional</td></tr></table>
+<p>Uniform interface ยังแตกเป็น 4 หลัก: ระบุ resource ด้วย URI (ใช้คำนาม ไม่ใช้กริยา), resource representation (HTML, XML, JSON ตามที่ client ขอผ่าน Accept), self-descriptive messages (มี metadata พอให้รู้ว่าต้องจัดการยังไง) และ HATEOAS (ใน response มี link ให้เดินต่อไปยัง resource อื่น)</p>
+<div class="codebox"><div class="cap">อ่าน URI + method</div><pre><script type="text/plain">GET https://www.googleapis.com/customsearch/v1?parameters
+//       เจ้าของ          ชื่อ API     version
+
+GET    /students      // ดึง
+POST   /student       // สร้าง  ← ไม่ idempotent ส่งซ้ำอาจได้ของซ้ำ, server เลือก URI
+PUT    /student       // แก้   ← idempotent ส่งซ้ำผลเท่าเดิม, client เลือก URI
+PATCH  /student       // แก้บางส่วน
+DELETE /student       // ลบ</script></pre></div></div>
+
+<div class="step"><h3><span class="n">6</span>เรียก web service ด้วย JavaScript</h3>
+<div class="codebox"><div class="cap">XMLHttpRequest (แบบเก่า)</div><pre><script type="text/plain">let request = new XMLHttpRequest();
+request.open("GET", url);           // open(method, URL, [async, user, password])
+request.responseType = "json";      // "", "text", "arraybuffer", "blob", "document", "json"
+request.send();                     // GET ไม่มี body, POST ใส่ body ใน send(body)
+request.onload  = () => console.log(request.status, request.response);
+request.onerror = () => console.log("request failed");
+// readyState: 0 UNSENT, 1 OPENED, 2 HEADERS_RECEIVED, 3 LOADING, 4 DONE</script></pre></div>
+<div class="codebox"><div class="cap">fetch (แบบใหม่ คืน Promise)</div><pre><script type="text/plain">fetch(rooturl)
+  .then((res) => res.json())     // ขั้น 2: อ่าน body (text(), json(), blob(), formData(), arrayBuffer())
+  .then((data) => {
+    document.querySelector("#output").innerHTML = JSON.stringify(data, null, "\t");
+  })
+  .catch((err) => console.log(err));
+
+// ขั้น 1: ได้ Response ทันทีที่ header มาถึง เช็ค res.status และ res.ok
+// res.ok เป็น true เมื่อ status อยู่ช่วง 200-299
+// Promise จะ reject เฉพาะตอนส่ง request ไม่ได้ ได้ 404 กลับมายังไม่ reject</script></pre></div></div>
+
+<div class="trap"><h3>จุดที่ข้อสอบชอบหลอก</h3><ul>
+<li>REST ไม่ใช่ protocol, Code-on-demand เป็น optional ข้อเดียว</li>
+<li>PUT idempotent ส่วน POST ไม่</li>
+<li>Accept คือสิ่งที่ client อยากได้ Content-Type คือชนิดของ body ที่ส่ง</li>
+<li>localStorage ไม่ถูกส่งไป server ส่วน cookie ถูกส่งทุก request</li>
+</ul></div>
+
+<div class="lab"><h3>Lab12: ค้นหาสูตรอาหารจาก spoonacular</h3>
+<p>สมัครเอา API key แล้วใช้ fetch เรียก Search Recipes (complexSearch) ด้วยคำค้นอย่าง Chicken จากนั้นแสดงชื่อกับรูปอาหารจาก <code>results</code> เซฟเป็น webservice-lab.html</p>
+<details><summary>ดูโค้ดตัวอย่าง</summary>
+<div class="codebox"><div class="cap">webservice-lab.html (script)</div><pre><script type="text/plain">async function search() {
+  const q = document.querySelector("#q").value;
+  const url = `https://api.spoonacular.com/recipes/complexSearch?query=${q}&number=20&apiKey=${API_KEY}`;
+  const res = await fetch(url);          // ขั้น 1
+  if (!res.ok) return console.log(res.status);
+  const data = await res.json();         // ขั้น 2
+  document.querySelector("#output").innerHTML = data.results
+    .map(r => `<div><img src="${r.image}"><p>${r.title}</p></div>`)
+    .join("");
+}</script></pre></div></details></div>
+</div></div>
+</div></section>
+
+<!-- ================= L13 ================= -->
+<section class="lec band view" id="l13"><div class="wrap">
+<div class="lhead"><span class="tag">Lect13</span><h2>Web Services with Node.js: ทำ REST API ของตัวเอง</h2></div>
+<p class="lede">เอาทุกอย่างจาก L10 ถึง L12 มารวมกัน สร้าง studentservices.js ที่ทำ CRUD กับตาราง student แล้วตอบเป็น JSON ทดสอบด้วย Postman เปิด CORS ให้หน้าเว็บเรียกได้ และล็อกด้วย JWT</p>
+<div class="grid"><div>
+
+<div class="step"><h3><span class="n">1</span>เตรียมไฟล์และต่อ DB</h3>
+<div class="codebox"><div class="cap">.env · studentservices.js</div><pre><script type="text/plain"># .env       (npm install dotenv express mysql2 nodemon)
+DB_user = "itcs212"
+DB_pass = "itcs212"
+DB_name = "itcs212"
+host = "localhost"
+
+// studentservices.js
+let dbConn = mysql.createConnection({
+  host: process.env.host,
+  user: process.env.DB_user,
+  password: process.env.DB_pass,
+  database: process.env.DB_name,
+});
+router.use(express.json());      // body ที่ส่งมาเป็น JSON</script></pre></div>
+<table><tr><th>CRUD</th><th>SQL</th><th>RESTful WS</th></tr>
+<tr><td>Create</td><td>INSERT</td><td>POST</td></tr>
+<tr><td>Read</td><td>SELECT</td><td>GET</td></tr>
+<tr><td>Update</td><td>UPDATE</td><td>PUT</td></tr>
+<tr><td>Delete</td><td>DELETE</td><td>DELETE</td></tr></table></div>
+
+<div class="step"><h3><span class="n">2</span>เขียน 5 route ให้ครบ CRUD</h3>
+<p>ทุก route ตอบกลับรูปแบบเดียวกัน <code>{ error, data, message }</code> ถ้าข้อมูลที่ส่งมาไม่ครบให้ตอบ 400</p>
+<div class="codebox"><div class="cap">studentservices.js</div><pre><script type="text/plain">// SELECT ทั้งหมด:  GET /students
+router.get('/students', (req, res) => {
+  dbConn.query('SELECT * FROM student', (error, results) => {
+    if (error) throw error;
+    return res.send({ error: false, data: results, message: 'Student list.' });
+  });
+});
+
+// SELECT ตัวเดียว:  GET /student/4
+router.get('/student/:id', (req, res) => {
+  let student_id = req.params.id;          // :id ใน path อ่านด้วย req.params
+  if (!student_id)
+    return res.status(400).send({ error: true, message: 'Please provide student id.' });
+  dbConn.query('SELECT * FROM student where STU_ID=?', student_id, (error, results) => {
+    if (error) throw error;
+    return res.send({ error: false, data: results[0], message: 'Student retrieved' });
+  });
+});
+
+// INSERT:  POST /student   body: { "student": { "STU_ID": 99998, "STU_FNAME": ... } }
+router.post('/student', (req, res) => {
+  let student = req.body.student;
+  if (!student)
+    return res.status(400).send({ error: true, message: 'Please provide student information' });
+  dbConn.query("INSERT INTO student SET ? ", student, (error, results) => {   // SET ? รับ object ทั้งก้อน
+    if (error) throw error;
+    return res.send({ error: false, data: results.affectedRows,
+                      message: 'New student has been created successfully.' });
+  });
+});
+
+// UPDATE:  PUT /student
+router.put('/student', (req, res) => {
+  let student = req.body.student;
+  let student_id = student.STU_ID;
+  dbConn.query("UPDATE student SET ? WHERE STU_ID = ?", [student, student_id], (error, results) => {
+    if (error) throw error;
+    return res.send({ error: false, data: results.affectedRows, message: 'Student has been updated successfully.' });
+  });
+});
+
+// DELETE:  DELETE /student   body: { "student_id": 99998 }
+router.delete('/student', (req, res) => {
+  let student_id = req.body.student_id;
+  dbConn.query('DELETE FROM student WHERE STU_ID = ?', [student_id], (error, results) => {
+    if (error) throw error;
+    return res.send({ error: false, data: results.affectedRows, message: 'Student has been deleted successfully.' });
+  });
+});</script></pre></div>
+<p>ทดสอบด้วย Postman: เลือก method, ใส่ URL เช่น <code>http://localhost:3000/student</code>, ไปที่ Body เลือก raw / JSON แล้วแปะ JSON ลงไป</p></div>
+
+<div class="step"><h3><span class="n">3</span>เรียก service จากหน้าเว็บ</h3>
+<div class="codebox"><div class="cap">callStudentService.js</div><pre><script type="text/plain">async function callStudentWS(url, method, sentData = {}) {
+  let data;
+  if (method == "select") {
+    let response = await fetch(url, { method: 'GET' });
+    data = await response.json();
+  }
+  return data;
+}
+
+selectBtnRef.addEventListener("click", () => {
+  callStudentWS("http://localhost:3000/student/" + STU_IDTxtRef.value, "select")
+    .then((data) => {
+      STU_FNAMETxtRef.value = data.data.STU_FNAME;   // data.data เพราะ response คือ {error, data, message}
+    });
+});</script></pre></div></div>
+</div><div>
+
+<div class="step"><h3><span class="n">4</span>CORS: ทำไม browser ไม่ยอมให้เรียก</h3>
+<p>browser มี same-origin policy คือ script จะอ่านข้อมูลจากที่อื่นได้ก็ต่อเมื่อ origin เดียวกัน ถ้าต่างกันแค่อย่างใดอย่างหนึ่ง ทั้ง domain, subdomain, port หรือ protocol ก็โดน block แล้ว เช่นหน้าเว็บที่ localhost:3100 เรียก service ที่ localhost:3000 ก็นับเป็น cross-origin ต้องแก้ที่ฝั่ง server</p>
+<div class="codebox"><div class="cap">studentservices.js (npm install --save cors)</div><pre><script type="text/plain">const cors = require('cors');
+app.use(cors());                              // เปิดให้ทุก origin ทุก route
+
+app.get('/student/:id', cors(), handler);     // หรือเปิดเฉพาะ route
+
+let corsOptions = {                           // หรือจำกัด origin และ method
+  origin: ['http://localhost:3100', 'http://localhost:3200'],
+  methods: 'GET,POST,PUT,DELETE'
+};
+app.use(cors(corsOptions));
+
+// ไม่ใช้ package ก็ตั้ง header เองได้
+res.header("Access-Control-Allow-Origin", "http://localhost:3200");
+res.header("Access-Control-Allow-Methods", "GET");</script></pre></div></div>
+
+<div class="step"><h3><span class="n">5</span>ล็อก API ด้วย JWT</h3>
+<p>flow คือ ผู้ใช้ login → server สร้าง token ส่งกลับ → client เก็บไว้ (localStorage, sessionStorage หรือ cookie) → ทุกครั้งที่เรียก API แนบ header <code>Authorization: Bearer &lt;token&gt;</code> → server ตรวจ token ผ่านก็ให้ข้อมูล ไม่ผ่านตอบ 401</p>
+<p>JWT หน้าตาเป็น <code>xxxxx.yyyyy.zzzzz</code> คือ header (ชนิด token กับ algorithm เช่น HS256), payload (claims ซึ่งมี registered claims อย่าง iss, exp, sub, aud, iat, public claims และ private claims ที่ตกลงกันเอง) และ signature ที่สร้างจาก header กับ payload ที่ encode แล้ว + secret + algorithm</p>
+<div class="codebox"><div class="cap">server (npm install --save jsonwebtoken)</div><pre><script type="text/plain">const jwt = require("jsonwebtoken");    // .env มี SECRET = "secret"
+
+// ออก token
+router.post("/signin", (req, res) => {
+  let user = req.body;
+  let jwtToken = jwt.sign(
+    { email: user.user.email, userid: user.user.userid.toString() },  // payload
+    process.env.SECRET,                                               // secret
+    { expiresIn: "1h" }                                               // option
+  );
+  res.status(200).json({ token: jwtToken, message: user });
+});
+
+// middlewares/auth.js: ตรวจ token ก่อนเข้า route
+module.exports = (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];  // "Bearer abc" → "abc"
+    var decoded = jwt.verify(token, process.env.SECRET);   // ผิด/หมดอายุจะ throw
+    next();                                                 // ผ่าน ไปต่อ
+  } catch (error) {
+    res.status(401).json({ error: true, message: "Authentication failed!" });
+  }
+};
+
+// ใส่ middleware ไว้หน้า handler
+const authorize = require("./middlewares/auth");
+router.get('/students', authorize, (req, res) => { /* ... */ });</script></pre></div>
+<div class="codebox"><div class="cap">client: login แล้วแนบ token</div><pre><script type="text/plain">// login: POST JSON
+let response = await fetch("http://localhost:3000/signin", {
+  method: "POST",
+  headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ user: { email: "test@test.com", userid: 1 } })
+});
+token = (await response.json()).token;
+
+// เรียก API ที่ล็อกไว้
+await fetch("http://localhost:3000/student/" + id, {
+  method: 'GET',
+  headers: { 'Authorization': 'Bearer ' + token }
+});</script></pre></div></div>
+
+<div class="step"><h3><span class="n">6</span>เรียก API จากฝั่ง Node ด้วย Axios</h3>
+<p>Axios ใช้ได้ทั้ง browser และ Node แปลง JSON ให้อัตโนมัติ ตั้ง timeout และยกเลิก request ได้ มี CSRF protection และดู upload progress ได้ ตัวอื่นที่ทำงานคล้ายกันคือ http, request, needle, superagent, got, node-fetch</p>
+<div class="codebox"><div class="cap">callapi.js (npm install axios)</div><pre><script type="text/plain">const axios = require("axios").default;
+
+let params = { number: 20, query: "pizza", apiKey: API_key };
+axios.get("https://api.spoonacular.com/recipes/complexSearch?", { params, responseType: "json" })
+  .then((res) => console.table(res.data.results))    // ผลอยู่ใน res.data
+  .catch((err) => console.log(err));
+
+axios.get("http://localhost:3000/students", { responseType: 'json' })
+  .then((res) => console.log(res.data));
+// มี axios.post(url, data, config), put, patch, delete
+// หรือ axios({ url, method, params, data })</script></pre></div>
+<p>debug ใน VSCode: เปิดโฟลเดอร์โปรเจกต์ ไปแท็บ Run and Debug กด create a launch.json เลือก Node.js แก้ <code>"program": "${workspaceFolder}\\server.js"</code> แล้วตั้ง breakpoint</p></div>
+
+<div class="trap"><h3>จุดที่ข้อสอบชอบหลอก</h3><ul>
+<li>ต่างแค่ port ก็เป็น cross-origin แล้ว</li>
+<li>payload ของ JWT แค่ encode ใครก็ถอดอ่านได้ ตัวกันปลอมคือ signature</li>
+<li>middleware ที่ไม่เรียก next() จะทำให้ request ไปไม่ถึง handler</li>
+</ul></div>
+
+<div class="lab"><h3>Lab13: StudentService.js + Postman</h3>
+<p>สร้าง DB <code>itds242-[Section]</code> ตาราง personal_info (StudentID, Firstname, Lastname, Birthdate, Mobilephone) ใส่ 3 แถว ทำ Insert, Update, Delete, Select, Select all แล้วทดสอบทุกตัวด้วย Postman ทำรายงานเป็น PDF</p>
+<details><summary>ดูโค้ดที่ส่ง (ย่อ)</summary>
+<div class="codebox"><div class="cap">StudentService.js</div><pre><script type="text/plain">app.use(express.json());
+const send = (res, status, error, data, message) =>
+  res.status(status).json({ error, data, message });   // ช่วยให้ทุก route ตอบรูปแบบเดียวกัน
+
+app.get('/student/:id', (req, res) => {
+  db.query('SELECT * FROM personal_info WHERE StudentID = ?', [req.params.id], (err, rows) => {
+    if (err) return send(res, 500, true, null, err.message);
+    if (rows.length === 0) return send(res, 404, true, null, 'Student not found.');
+    send(res, 200, false, rows[0], 'Student found.');
+  });
+});
+
+app.delete('/student/:id', (req, res) => {
+  db.query('DELETE FROM personal_info WHERE StudentID = ?', [req.params.id], (err, result) => {
+    if (result.affectedRows === 0) return send(res, 404, true, null, 'Student not found.');
+    send(res, 200, false, result, 'Student has been deleted successfully.');
+  });
+});</script></pre></div>
+<p>ในสไลด์ PUT กับ DELETE รับ id จาก body แต่ในแลปรับจาก <code>/:id</code> ทั้งสองแบบใช้ได้ ถ้าข้อสอบให้อ่านโค้ด ดูให้ดีว่าอ่านจาก req.body หรือ req.params</p>
+</details></div>
+</div></div>
+</div></section>
+
+<!-- ================= L14 ================= -->
+<section class="lec band react view" id="l14"><div class="wrap">
+<div class="lhead"><span class="tag">Lect14</span><h2>Introduction to React: สร้าง Tic Tac Toe</h2></div>
+<p class="lede">React เป็น JavaScript framework แบบ open source สำหรับทำ UI เราแบ่งหน้าจอเป็นชิ้นเล็ก ๆ เรียกว่า component สไลด์สอนผ่านเกม Tic Tac Toe เราจะเขียนตามไปทีละขั้น แล้วค่อยเก็บเรื่อง JSX, lifecycle, event, list และ form</p>
+<div class="grid"><div>
+
+<div class="step"><h3><span class="n">1</span>สร้างโปรเจกต์</h3>
+<div class="codebox"><div class="cap">terminal</div><pre><script type="text/plain">npm create vite@latest mytictactoe -- --template react-swc
+cd mytictactoe
+npm install        # ลง package ที่ต้องใช้
+npm run dev        # เปิด dev server
+# SWC = Speedy Web Compiler เขียนด้วย Rust ไว้ transpile/bundle JS กับ TS
+# แลปใช้อีกวิธี: npx create-react-app reactlab แล้ว npm start</script></pre></div>
+<div class="codebox"><div class="cap">main.jsx (จุดเริ่ม: index.html ← main.jsx ← App.jsx)</div><pre><script type="text/plain">const root = ReactDOM.createRoot(document.getElementById('root'));   // สร้าง root ก่อน
+root.render(
+  <React.StrictMode>      {/* ตรวจบั๊กเพิ่มเฉพาะตอน dev */}
+    <App />
+  </React.StrictMode>
+);</script></pre></div></div>
+
+<div class="step"><h3><span class="n">2</span>Component แรก และส่งค่าด้วย props</h3>
+<p>เกมมี 3 component ซ้อนกัน Game › Board › Square ข้อมูลส่งจากพ่อลงลูกผ่าน props</p>
+<div class="codebox"><div class="cap">App.jsx</div><pre><script type="text/plain">class Board extends React.Component {
+  renderSquare(i) {
+    return <Square value={i} />;          // ส่ง prop ชื่อ value ลงไป
+  }
+}
+
+class Square extends React.Component {
+  render() {                               // render คืน React element (เขียนด้วย JSX)
+    return <button className="square">{this.props.value}</button>;
+  }                                        // JSX ใช้ className แทน class
+}</script></pre></div></div>
+
+<div class="step"><h3><span class="n">3</span>ให้กดแล้วขึ้น X ด้วย state</h3>
+<div class="codebox"><div class="cap">Square มี state ของตัวเอง</div><pre><script type="text/plain">class Square extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { value: null };          // ตั้ง state เริ่มต้นใน constructor
+  }
+  render() {
+    return (
+      <button className="square"
+        onClick={() => this.setState({ value: "X" })}>   {/* เปลี่ยน state ต้องใช้ setState */}
+        {this.state.value}
+      </button>
+    );
+  }
+}</script></pre></div>
+<p>ปัญหาคือแต่ละช่องจำค่าของตัวเองแยกกัน Board เลยไม่รู้ว่าใครชนะ ต้องย้าย state ขึ้นไปเก็บที่ Board ที่เดียว เทคนิคนี้เรียกว่า Lifting State Up</p></div>
+
+<div class="step"><h3><span class="n">4</span>Lifting State Up + สลับตา + หาผู้ชนะ</h3>
+<div class="codebox"><div class="cap">Board เก็บ state ทั้งกระดาน</div><pre><script type="text/plain">// Square ไม่มี state แล้ว เลยเขียนเป็น function component ได้
+function Square(props) {
+  return <button className="square" onClick={props.onClick}>{props.value}</button>;
+}
+
+class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),   // [null x 9] แทน 9 ช่อง
+      xIsNext: true,                  // ตาใคร
+    };
+  }
+
+  handleClick(i) {
+    const squares = this.state.squares.slice();   // copy array ก่อน ห้ามแก้ state ตรง ๆ
+    if (findWinner(squares) || squares[i]) return; // มีคนชนะแล้ว หรือช่องนี้ถูกกดแล้ว
+    squares[i] = this.state.xIsNext ? "X" : "O";
+    this.setState({ squares: squares, xIsNext: !this.state.xIsNext });
+  }
+
+  renderSquare(i) {
+    // ส่งทั้งค่าและฟังก์ชันลงไป ลูกแก้ state ของพ่อเองไม่ได้ (state เป็น private)
+    return <Square value={this.state.squares[i]} onClick={() => this.handleClick(i)} />;
+  }
+
+  render() {
+    const winner = findWinner(this.state.squares);
+    const status = winner ? `Winner: ${winner}`
+                          : `Next player: ${this.state.xIsNext ? "X" : "O"}`;
+    /* ... วาดกระดาน 3x3 ด้วย this.renderSquare(0..8) ... */
+  }
+}
+
+function findWinner(squares) {
+  const goals = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for (let i = 0; i < goals.length; i++) {
+    const [a, b, c] = goals[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c])
+      return squares[a];          // คืน "X" หรือ "O"
+  }
+  return null;
+}</script></pre></div></div>
+
+<div class="step"><h3><span class="n">5</span>React ทำงานยังไงข้างใน</h3>
+<p>Virtual DOM คือสำเนาของ DOM ที่อยู่ในหน่วยความจำ แก้ได้เร็วเพราะยังไม่ต้องวาดขึ้นจอ เมื่อ state หรือ props เปลี่ยน React จะ re-render ได้ Virtual DOM ต้นใหม่ เอาไปเทียบกับต้นเก่า (diffing) หาจุดที่ต่าง แล้วทำ reconciliation คือไปสร้าง ลบ หรืออัปเดตเฉพาะ element ใน DOM จริงที่เปลี่ยน</p>
+<p>ข้อมูลไหลทางเดียวจากพ่อลงลูก (one-way data binding) จึงคาดเดาได้และคุมง่าย และ React ทำ server-side rendering ได้ คือ render ที่ server ก่อน หน้าแรกโหลดเร็วขึ้นและเครื่องสเปกต่ำก็ลื่นขึ้น</p></div>
+</div><div>
+
+<div class="step"><h3><span class="n">6</span>JSX และ component แบบต่าง ๆ</h3>
+<div class="codebox"><div class="cap">JSX</div><pre><script type="text/plain">const aPerson = { firstName: "Wudhichart", lastName: "Sawangphol" };
+const el = <h1>Hello, {aPerson.firstName + " " + aPerson.lastName}</h1>;  // ใส่ expression ใน { }
+
+// ไม่ใช้ JSX ก็เขียนแบบนี้ได้: createElement(type, props, children)
+React.createElement("h1", null, `Hello, ${aPerson.firstName}`);
+
+// function component กับ class component ให้ผลเหมือนกัน
+function Hello(props) { return <h1>Hello, {props.name}</h1>; }
+class Hello2 extends React.Component {
+  render() { return <h1>Hello, {this.props.name}</h1>; }
+}
+
+// component ซ้อน component ได้ แบ่งชิ้นเล็กดีกว่าชิ้นใหญ่
+function Composing() {
+  return <center><Hello name="Wudhichart" /><Hello name="Jidapa" /></center>;
+}
+// props อ่านได้อย่างเดียว ห้ามแก้</script></pre></div></div>
+
+<div class="step"><h3><span class="n">7</span>Lifecycle: นาฬิกาที่เดินเอง</h3>
+<div class="codebox"><div class="cap">DateClock</div><pre><script type="text/plain">class DateClock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { date: new Date() };
+  }
+  componentDidMount() {        // หลัง render ครั้งแรก (mounting)
+    this.triggerID = setInterval(() => this.trigger(), 1000);
+  }
+  componentWillUnmount() {     // ก่อน component ถูกลบ (unmounting) คืนทรัพยากร
+    clearInterval(this.triggerID);
+  }
+  trigger() { this.setState({ date: new Date() }); }
+  render() { return <h2>Time is {this.state.date.toLocaleTimeString()}</h2>; }
+}
+// 4 phases: Initial (getDefaultProps, getInitialState)
+//   → Mounting (componentWillMount, componentDidMount)
+//   → Updating (componentWillReceiveProps, componentDidUpdate)
+//   → Unmounting (componentWillUnmount)</script></pre></div></div>
+
+<div class="step"><h3><span class="n">8</span>Event</h3>
+<div class="codebox"><div class="cap">HTML vs React</div><pre><script type="text/plain"><a href="#" onclick="handleClick(); return false;">Click me</a>   <!-- HTML -->
+<a href="#" onClick={handleClick}>Click me</a>                   {/* React: camelCase, ส่งฟังก์ชัน */}
+
+function LinkClick() {
+  function handleClick(e) {
+    e.preventDefault();        // React ใช้ return false ไม่ได้ ต้องเรียกตัวนี้
+  }
+  return <a href="#" onClick={handleClick}>Click me</a>;
+}
+
+class TextClick extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { isClick: false };
+    this.handleClick = this.handleClick.bind(this);   // ไม่ bind แล้ว this จะเป็น undefined
+  }
+  handleClick() { this.setState((state) => ({ isClick: !state.isClick })); }
+  // อีกวิธี: handleClick = () => { ... }   (class field) ← แนะนำคู่กับ bind
+  // หรือ onClick={() => this.handleClick()}  ← ได้ แต่ช้ากว่า
+  render() { return <button onClick={this.handleClick}>Click</button>; }
+}</script></pre></div></div>
+
+<div class="step"><h3><span class="n">9</span>List กับ key</h3>
+<div class="codebox"><div class="cap">FruitList</div><pre><script type="text/plain">function FruitList(props) {
+  const fruitItems = props.fruits.map((fruit) =>
+    <FruitItem key={fruit.toString()} item={fruit} />   // key ใส่ที่ตัวที่สร้างใน map()
+  );
+  return <ul>{fruitItems}</ul>;
+}
+// key ต้องไม่ซ้ำ React ใช้มันดูว่า item ไหนเปลี่ยน เพิ่ม หรือถูกลบ</script></pre></div></div>
+
+<div class="step"><h3><span class="n">10</span>Form แบบ controlled</h3>
+<p>controlled component คือ input ที่ค่าของมันผูกกับ state ทุกครั้งที่พิมพ์ onChange จะ setState แล้ว input แสดงค่าจาก state ส่วน uncontrolled คือปล่อยให้ DOM จัดการเหมือน HTML form ปกติ</p>
+<div class="codebox"><div class="cap">InfoForm</div><pre><script type="text/plain">class InfoForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { firstname: "", lastname: "", fruit: "apple" };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+  handleChange(e) {
+    // [ ] = computed property name เอาค่า name ของ input มาเป็นชื่อ key
+    this.setState({ [e.target.name]: e.target.value });
+  }
+  handleSubmit(e) {
+    e.preventDefault();
+    alert(`Hello, ${this.state.firstname}`);
+  }
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <input name="firstname" value={this.state.firstname} onChange={this.handleChange} />
+        <textarea value={this.state.comment} onChange={this.handleChange} />  {/* textarea ใช้ value */}
+        <select name="fruit" value={this.state.fruit} onChange={this.handleChange}>  {/* select ก็ใช้ value */}
+          <option value="apple">Apple</option>
+          <option value="orange">Orange</option>
+        </select>
+        <input type="submit" value="Submit" />
+      </form>
+    );
+  }
+}</script></pre></div></div>
+
+<div class="trap"><h3>จุดที่ข้อสอบชอบหลอก</h3><ul>
+<li><code>this.state.x = 1</code> ผิด ต้อง setState และ copy array ด้วย slice() ก่อนแก้</li>
+<li><code>onClick={handleClick()}</code> มีวงเล็บจะเรียกทันทีตอน render ที่ถูกคือ <code>onClick={handleClick}</code></li>
+<li>componentDidMount คือหลัง render ครั้งแรก componentWillUnmount คือก่อนถูกลบ</li>
+</ul></div>
+
+<div class="lab"><h3>Lab14: InfoForm สองแบบผ่าน props.type</h3>
+<p><code>type="normal"</code> มีชื่อ นามสกุล อายุ ส่วน <code>type="special"</code> เพิ่ม Nationality กับ Disability กด Submit แล้ว alert ข้อมูล (normal บอกอายุ special บอกสัญชาติ)</p>
+<details><summary>ดูโค้ดหลัก</summary>
+<div class="codebox"><div class="cap">index.js</div><pre><script type="text/plain">function InfoForm(props) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const d = new FormData(e.target);     // uncontrolled: อ่านค่าจาก form ตอน submit
+    if (props.type === "normal")
+      alert(`Hello, ${d.get("firstName")} ${d.get("lastName")}\nYour age is ${d.get("age")}`);
+    else
+      alert(`Hello, ${d.get("firstName")} ${d.get("lastName")}\nYour nationality is ${d.get("nationality")}`);
+  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="firstName" /> <input name="lastName" /> <input type="number" name="age" />
+      {props.type === "special" && (      // แสดงเฉพาะแบบ special
+        <>
+          <select name="nationality">...</select>
+          <select name="disability">...</select>
+        </>
+      )}
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<InfoForm type="special" />);</script></pre></div>
+<p>แลปนี้เป็น uncontrolled form ส่วนสไลด์สอน controlled ข้อสอบอาจถามความต่างของสองแบบ</p>
+</details></div>
+</div></div>
+</div></section>
+
+<!-- ================= CHEAT ================= -->
+<section class="band view" id="cheat"><div class="wrap">
+<div class="lhead"><span class="tag">Cheat sheet</span><h2>ชีทท่องจำก่อนเข้าห้องสอบ</h2></div>
+<p class="lede">ไว้อ่านรอบสุดท้ายก่อนเข้าห้องสอบ</p>
+<table class="stack">
+<thead><tr><th>เรื่อง</th><th>จำแค่นี้</th></tr></thead>
+<tbody>
+<tr><td>อ่านข้อมูลจาก request</td><td>query string → <code>req.query</code> · form POST / JSON → <code>req.body</code> · <code>/:id</code> → <code>req.params</code> · cookie → <code>req.cookies</code> · header → <code>req.headers.authorization</code></td></tr>
+<tr><td>ตอบกลับ</td><td><code>res.send()</code> · <code>res.json()</code> · <code>res.sendFile(absPath)</code> · <code>res.status(404)</code> · <code>res.redirect('/x')</code> · <code>res.cookie()</code> · <code>res.clearCookie()</code> · (http module: <code>res.statusCode</code>, <code>setHeader</code>, <code>write</code>, <code>end</code>)</td></tr>
+<tr><td>Middleware ที่ต้อง <code>app.use</code></td><td><code>express.json()</code> · <code>express.urlencoded({extended:true})</code> · <code>express.static(dir)</code> · <code>cookie-parser()</code> · <code>session({...})</code> · <code>cors()</code></td></tr>
+<tr><td>npm packages</td><td>express, nodemon, dotenv, cookie-parser, express-session, mysql2, cors, jsonwebtoken, axios</td></tr>
+<tr><td>Status codes</td><td>200 OK · 201 Created · 400 Bad Request · 401 Unauthorized · 404 Not Found · 500 Internal Server Error</td></tr>
+<tr><td>REST 6 ข้อ</td><td>Client/Server · Stateless · Cacheable · Uniform Interface · Layered System · Code-on-Demand (optional)</td></tr>
+<tr><td>Uniform interface 4 ข้อ</td><td>Identifying resource · Representation · Self-descriptive messages · HATEOAS</td></tr>
+<tr><td>CRUD</td><td>POST=INSERT · GET=SELECT · PUT=UPDATE · DELETE=DELETE</td></tr>
+<tr><td>JWT</td><td>header.payload.signature · claims: iss exp sub aud iat · <code>sign()</code> / <code>verify()</code> · <code>Authorization: Bearer</code></td></tr>
+<tr><td>CORS เกิดเมื่อ</td><td>ต่าง domain / subdomain / port / protocol</td></tr>
+<tr><td>Storage</td><td>cookie 4KB ส่งทุก request · localStorage 5MB อยู่ถาวร · sessionStorage อยู่ใน tab · ทั้งสองเก็บ string → JSON.stringify/parse</td></tr>
+<tr><td>fetch</td><td>Promise · <code>res.ok</code> = 200 ถึง 299 · <code>await res.json()</code> · reject เฉพาะ network error</td></tr>
+<tr><td>XHR readyState</td><td>0 UNSENT · 1 OPENED · 2 HEADERS_RECEIVED · 3 LOADING · 4 DONE</td></tr>
+<tr><td>React</td><td>props read-only · setState · lifting state up · VDOM diff + reconciliation · one-way binding · camelCase event · key ใน map · controlled = value + onChange</td></tr>
+<tr><td>Lifecycle</td><td>Initial → Mounting (componentDidMount) → Updating (componentDidUpdate) → Unmounting (componentWillUnmount)</td></tr>
+</tbody></table>
+</div></section>
+
+<!-- ================= QUIZ ================= -->
+<section class="band view" id="quiz"><div class="wrap">
+<div class="lhead"><span class="tag">Quiz</span><h2>ข้อสอบฝึก</h2></div>
+<p class="lede">กดเลือกคำตอบแล้วเฉลยจะขึ้นทันที จะทำทีละบทหรือรวมทุกบทก็ได้ ระบบจำคำตอบไว้ในเครื่องนี้</p>
+<div class="qbar" role="group" aria-label="เลือกบท" id="filters"></div>
+<div class="qbar"><button id="shuffle">สุ่มลำดับใหม่</button><button id="reset">เริ่มใหม่</button><span class="score" id="score"></span></div>
+<div class="qs" id="qs"></div>
+</div></section>
+
+<footer><div class="wrap">สรุปจากสไลด์ ITDS241 Lect09 ถึง 14 (Faculty of ICT, Mahidol University) และ repo แลป Lab09 ถึง 14 ของคุณ คำถามฝึกเขียนขึ้นใหม่จากเนื้อหา ไม่ใช่ข้อสอบจริง</div></footer>
+
+<script>
+{
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// code blocks: escape + light highlight + copy button
+for (const pre of document.querySelectorAll('pre')) {
+  const src = pre.querySelector('script[type="text/plain"]');
+  if (!src) continue;
+  const raw = src.textContent.replace(/^\n/, '');
+  let h = esc(raw)
+    .replace(/((?<!:)\/\/[^\n]*|\/\*[\s\S]*?\*\/)/g, '<span class="c">$1</span>');
+  pre.innerHTML = h;
+  pre.dataset.raw = raw;
+  const cap = pre.parentElement.querySelector('.cap');
+  if (cap) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = 'Copy';
+    b.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(raw); b.textContent = 'คัดลอกแล้ว'; }
+      catch (e) { b.textContent = 'คัดลอกไม่ได้'; }
+      setTimeout(() => b.textContent = 'Copy', 1500);
+    });
+    cap.appendChild(b);
+  }
+}
+
+// quiz bank: [lecture, question, options[], correctIndex, explanation]
+const Q = [
+["L09","Node.js คืออะไร",["ภาษาโปรแกรมใหม่ที่แทน JavaScript","Asynchronous JavaScript runtime ที่สร้างบน V8 engine","Web browser สำหรับนักพัฒนา","Database สำหรับ JSON"],1,"Node.js คือ runtime ที่รัน JavaScript นอก browser โดยใช้ V8 engine ของ Chrome"],
+["L09","ข้อใด <b>ไม่มี</b> ใน Node.js",["require()","process","document และ window","__dirname"],2,"Node ไม่มี DOM จึงไม่มี document และ window ส่วนข้ออื่นเป็น global objects ของ Node"],
+["L09","ข้อใดอธิบายสถาปัตยกรรมของ Node.js ถูกต้อง",["Multi-thread ต่อ request หนึ่ง thread","Single-thread event loop แบบ non-blocking","Single-thread แบบ blocking รอทีละงาน","ไม่มี thread"],1,"thread หลักรับ request ส่งงานออกไป แล้วรับ request ถัดไปเลยโดยไม่รอ งานเสร็จค่อยตอบกลับ"],
+["L09","Node.js <b>ไม่เหมาะ</b> กับงานประเภทใด",["Real-time chat","JSON API","งานคำนวณหนัก (computation-intensive)","แอปที่อ่าน/เขียนไฟล์เยอะ"],2,"สไลด์ระบุว่า Node ไม่เหมาะกับงานคำนวณหนัก เพราะจะ block event loop ตัวเดียว"],
+["L09","ใช้ fs.readFile (async) อ่าน README1, 2, 3 ต่อกัน ผลลัพธ์ที่พิมพ์ออกมาเป็นอย่างไร",["1, 2, 3 เสมอ","3, 2, 1 เสมอ","ลำดับไม่แน่นอน","error เพราะอ่านพร้อมกันไม่ได้"],2,"async ไม่รอกัน ไฟล์ไหนอ่านเสร็จก่อนก็พิมพ์ก่อน ถ้าต้องการลำดับให้ใช้ readFileSync, ซ้อน callback หรือ async/await"],
+["L09","<code>path.parse('/Users/demo/path.js').name</code> ได้ค่าอะไร",["path.js","path","/Users/demo",".js"],1,"name = ชื่อไฟล์ไม่มีนามสกุล · base = path.js · dir = /Users/demo · ext = .js"],
+["L09","<code>new URL('https://a.com:8080/p?country=TH&time=now').searchParams.get('time')</code>",["?country=TH&time=now","now","time=now","8080"],1,"searchParams.get('time') คืนค่าของ parameter time คือ now ส่วน .search คือ ?country=TH&time=now"],
+["L09","hello.js มี <code>module.exports.sayHi = sayHello;</code> ถ้า <code>const eng = require('./hello')</code> จะเรียกฟังก์ชันอย่างไร",["eng.sayHello()","sayHi()","eng.sayHi()","require.sayHi()"],2,"export ในชื่อ sayHi จึงต้องเรียกผ่าน object ที่ require มา: eng.sayHi()"],
+["L09","ใน http.createServer ใช้อะไรตรวจสอบ path ที่ผู้ใช้ร้องขอ",["req.path","req.url","res.url","req.route"],1,"http module ใช้ req.url (เช่น '/bbq') ส่วน req.path เป็นของ Express"],
+["L09","ข้อใดคือ callback hell",["การใช้ Promise","callback ซ้อนกันหลายชั้นจนอ่านยาก","การใช้ readFileSync","การ export หลายฟังก์ชัน"],1,"callback ซ้อนกันเป็นขั้นบันได })}) ทำให้อ่านและดูแลยาก แก้ได้ด้วย Promise หรือ async/await"],
+["L10","คำสั่งใดสร้างไฟล์ package.json",["npm install","npm start","npm init","node app.js"],2,"npm init สร้าง package.json (npm init -y คือใช้ค่า default)"],
+["L10","nodemon มีไว้ทำอะไร",["ต่อ database","restart server อัตโนมัติเมื่อไฟล์เปลี่ยน","จัดการ cookie","สร้าง React app"],1,"nodemon คอยดูไฟล์ เมื่อแก้แล้วจะรัน node app.js ใหม่ให้เอง"],
+["L10","form <code>method=\"GET\"</code> ส่ง fname มา ใน Express อ่านค่าด้วยอะไร",["req.body.fname","req.query.fname","req.params.fname","req.cookies.fname"],1,"GET ส่งข้อมูลเป็น query string ใน URL จึงอ่านด้วย req.query"],
+["L10","form POST แล้ว req.body เป็น undefined สาเหตุที่น่าจะเป็นที่สุดคือ",["ใช้ router.get แทน router.post","ลืม express.urlencoded({extended:true})","ลืม express.static","ลืม npm init"],1,"POST ส่งข้อมูลใน body ต้องมี middleware parse ก่อน (express.urlencoded สำหรับ form, express.json สำหรับ JSON)"],
+["L10","ตั้ง <code>app.use('/', express.static(path.join(__dirname,'public')))</code> ไฟล์อยู่ที่ public/mystyle.css ใน HTML ควรเขียนอย่างไร",["href=\"../public/mystyle.css\"","href=\"/public/mystyle.css\"","href=\"/mystyle.css\"","href=\"mystyle\""],2,"static mount ที่ public แล้ว path จึงเริ่มนับจากใน public"],
+["L10","<code>app.use('/product', router1); router1.get('/add', ...)</code> เข้าได้ที่ URL ใด",["/add","/product","/product/add","/add/product"],2,"path ของ router ต่อท้าย mount path: /product + /add"],
+["L10","route ที่ตอบ 404 ด้วย <code>router.use(...)</code> ควรวางไว้ตรงไหน",["บนสุดก่อน route อื่น","ท้ายสุดหลัง route อื่นทั้งหมด","ใน package.json","ตรงไหนก็ได้"],1,"Express จับ route ตามลำดับ ถ้าวางบนสุดจะดักทุก request และ router.use ทำงานกับทุก method"],
+["L10","ทำไมต้องใช้ <code>path.join(__dirname, 'html', 'x.html')</code> กับ res.sendFile",["ให้โหลดเร็วขึ้น","sendFile ต้องการ absolute path","เพื่อเข้ารหัสไฟล์","เพื่อแปลงเป็น JSON"],1,"__dirname คือโฟลเดอร์ของไฟล์ที่รันอยู่ และ path.join รวมเป็น absolute path ที่ถูกต้องในทุก OS"],
+["L11","HTTP ถูกเรียกว่า stateless หมายความว่าอะไร",["ไม่มี header","แต่ละ request ไม่มีความเชื่อมโยงกัน","ส่งได้เฉพาะ text","ไม่มี status code"],1,"server ไม่จำ request ก่อนหน้า จึงต้องใช้ cookie/session ช่วยจำสถานะ"],
+["L11","ข้อใดถูกต้องเกี่ยวกับ cookie และ session",["cookie เก็บที่ server, session เก็บที่ client","cookie เก็บที่ client, session เก็บที่ server","ทั้งคู่เก็บที่ server","ทั้งคู่เก็บที่ client"],1,"cookie อยู่ใน browser (client อ่านได้) ส่วน session อยู่ที่ server ปลอดภัยกว่า"],
+["L11","คำสั่งใด <b>สร้าง</b> cookie ใน Express",["req.cookies('a','b')","res.cookie('a','b')","res.setCookie('a','b')","req.session.cookie='b'"],1,"res.cookie(name, value) ส่ง Set-Cookie ไปกับ response ส่วน req.cookies ใช้อ่าน (ต้องมี cookie-parser)"],
+["L11","<code>res.cookie(name, 'value', {maxAge: 360000})</code> หมายถึง",["หมดอายุวันที่ 360000","หมดอายุหลังตั้ง 360000 ms","เก็บได้ 360000 byte","ส่งได้ 360000 ครั้ง"],1,"maxAge คือระยะเวลา (ms) นับจากตอนตั้ง"],
+["L11","express-session option <code>resave: false</code> หมายความว่า",["ไม่เคย save session","save เฉพาะเมื่อ session ถูกแก้ไข","save ทุก request","ลบ session ทุกครั้ง"],1,"resave:false = save เฉพาะตอนแก้ · saveUninitialized:true = สร้าง session ให้ทุก user แม้ยังไม่ใช้"],
+["L11","ทำไม MemoryStore (store default ของ express-session) ไม่เหมาะกับ production",["เพราะเข้ารหัสไม่ได้","เพราะออกแบบมาเพื่อ dev/debug เท่านั้น","เพราะใช้ได้แค่ MySQL","เพราะเก็บได้แค่ cookie"],1,"สไลด์ระบุว่า MemoryStore สร้างมาเพื่อ debug และพัฒนา production ควรใช้ store อื่น"],
+["L11","อ่านค่า PORT จากไฟล์ .env ด้วยอะไร (หลัง dotenv.config())",["env.PORT","process.env.PORT","dotenv.PORT","require('.env').PORT"],1,"dotenv โหลดตัวแปรจาก .env เข้า process.env"],
+["L11","หลัง INSERT ด้วย mysql2 ดูจำนวนแถวที่เพิ่มได้จาก",["results.length","results.affectedRows","results.rows","results.count"],1,"INSERT/UPDATE/DELETE ใช้ affectedRows ส่วน SELECT ได้ array ใช้ results.length"],
+["L11","วิธีใดปลอดภัยที่สุดเมื่อใส่ค่าที่ผู้ใช้กรอกลงใน SQL",["ต่อ string ด้วย +","ใช้ template literal ${}","ใช้ placeholder ? แล้วส่งค่าเป็น array","แปลงเป็นตัวพิมพ์ใหญ่ก่อน"],2,"query('... WHERE emp_num = ?', [empNum]) ให้ library escape ค่าให้ กัน SQL injection (แบบที่ใช้ใน Lab11)"],
+["L12","2-tier architecture เรียกอีกชื่อว่า",["Mainframe","Client-Server","Distributed application","Microservice"],1,"2-tier = client-server · N-tier = distributed application · 1-tier = mainframe/dumb terminal"],
+["L12","ส่วนประกอบของ HTTP Request คือ",["Status line, Headers, Body","Request line, Headers, Body","URL, Cookie, Body","Method, Status, Body"],1,"Request: request line (method path version) + headers + body · Response: status line + headers + body"],
+["L12","header ใดบอก server ว่า client อยากได้ response เป็นชนิดใด",["Content-Type","Accept","Host","User-Agent"],1,"Accept = ชนิดที่ client รับได้/ต้องการ · Content-Type = ชนิดของ body ที่กำลังส่ง"],
+["L12","ข้อใดถูกต้องเกี่ยวกับ localStorage",["ส่งไป server ทุก request","เก็บได้ประมาณ 4KB","เก็บได้เฉพาะ string และไม่ถูกส่งไป server อัตโนมัติ","หายไปเมื่อ refresh"],2,"localStorage ~5MB ต่อ domain เก็บ string อยู่จนลบ และ JS ฝั่ง client เท่านั้นที่เข้าถึง"],
+["L12","sessionStorage มีลักษณะอย่างไร",["ใช้ร่วมกันทุก tab","อยู่เฉพาะ tab ปัจจุบัน และยังอยู่หลัง refresh","ถูกส่งไป server","เก็บที่ server"],1,"sessionStorage อยู่ใน tab นั้น refresh ยังอยู่ ปิด tab ถึงหาย"],
+["L12","ข้อใดเป็น JSON ที่ถูกต้อง",["{name: 'Wud'}","{\"name\": \"Wud\"}","{'name': 'Wud'}","{\"name\": undefined}"],1,"JSON ต้องใช้ double quote ทั้ง key และ string และไม่มี undefined"],
+["L12","แปลง object เป็น string เพื่อเก็บลง localStorage ใช้ฟังก์ชันใด",["JSON.parse()","JSON.stringify()","toString()","JSON.encode()"],1,"stringify = serialization (object → string) · parse = deserialization (string → object)"],
+["L12","REST คืออะไร",["Protocol แบบเดียวกับ HTTP","มาตรฐานของ W3C","Architecture style","ภาษา markup"],2,"REST เป็น architecture ไม่ใช่ technology, standard หรือ protocol"],
+["L12","REST constraint ข้อใดเป็น <b>optional</b>",["Stateless","Cacheable","Layered System","Code-On-Demand"],3,"Code-On-Demand (ส่งโค้ดไปรันที่ client) เป็นข้อเดียวที่ optional"],
+["L12","Stateless ใน REST หมายถึง",["server ไม่มี database","ทุก request ต้องมีข้อมูลครบ server ไม่เก็บ context ของ client","client ห้ามเก็บข้อมูล","ห้ามใช้ HTTP header"],1,"server ถือว่าทุก request ใหม่หมด ช่วยเรื่อง scalability และ reliability"],
+["L12","ข้อใดถูกต้องเรื่อง PUT กับ POST",["POST idempotent, PUT ไม่","PUT idempotent, POST ไม่","ทั้งคู่ idempotent","ไม่มีตัวไหน idempotent"],1,"PUT ส่งซ้ำได้ผลเหมือนเดิม (client กำหนด URI) ส่วน POST ส่งซ้ำอาจสร้างซ้ำ (server กำหนด URI)"],
+["L12","HATEOAS คือ",["รูปแบบการเข้ารหัส","การใช้ hypertext/link นำทางผ่าน API","ชื่อ HTTP method","การ cache response"],1,"Hypermedia as the Engine of Application State: response มี link ไปยัง resource ที่เกี่ยวข้อง"],
+["L12","XMLHttpRequest readyState = 4 หมายถึง",["UNSENT","LOADING","HEADERS_RECEIVED","DONE"],3,"0 UNSENT, 1 OPENED, 2 HEADERS_RECEIVED, 3 LOADING, 4 DONE"],
+["L12","fetch ได้ response 404 กลับมา จะเกิดอะไรขึ้น",["Promise reject ทันที","Promise resolve แต่ response.ok เป็น false","throw error ใน server","fetch ส่งใหม่อัตโนมัติ"],1,"fetch reject เฉพาะเมื่อส่ง request ไม่ได้ ส่วน 404/500 ยัง resolve และ ok = false (ok true เฉพาะ 200 ถึง 299)"],
+["L12","ข้อความใดถูกต้อง",["API ทุกตัวเป็น web service","Web service ทุกตัวเป็น API","Web service ไม่ต้องใช้ network","API ต้องใช้ HTTP เสมอ"],1,"Web service ทุกตัวเป็น API แต่ API ไม่ใช่ web service ทุกตัว เพราะ WS ต้องใช้ network"],
+["L13","Update ข้อมูลนักศึกษาใน RESTful WS ของวิชา ใช้ HTTP method ใด",["GET","POST","PUT","DELETE"],2,"Create=POST, Read=GET, Update=PUT, Delete=DELETE"],
+["L13","route <code>/student/:id</code> อ่านค่า id ด้วย",["req.query.id","req.body.id","req.params.id","req.id"],2,"ค่าที่อยู่ใน path parameter อ่านจาก req.params"],
+["L13","หน้าเว็บที่ localhost:3100 เรียก API ที่ localhost:3000 ถูก browser block เพราะอะไร",["คนละ domain","คนละ port จึงเป็น cross-origin","คนละ method","ไม่มี JSON"],1,"CORS เกิดเมื่อต่าง domain, subdomain, port หรือ protocol แก้ด้วย app.use(cors()) ที่ฝั่ง server"],
+["L13","JWT ประกอบด้วยส่วนใดบ้าง",["Header.Body.Footer","Header.Payload.Signature","Key.Value.Hash","User.Password.Token"],1,"xxxxx.yyyyy.zzzzz = header (typ, alg) . payload (claims) . signature"],
+["L13","ข้อใด <b>ไม่ใช่</b> registered claim ของ JWT",["iss","exp","sub","password"],3,"registered claims เช่น iss, exp, sub, aud, iat ส่วน password ไม่ใช่ และไม่ควรใส่ใน payload ด้วย"],
+["L13","ใน middleware auth.js บรรทัด <code>req.headers.authorization.split(\" \")[1]</code> ทำอะไร",["ดึงชื่อผู้ใช้","ตัดคำว่า Bearer ออกเพื่อเอา token","เข้ารหัส token","ตรวจสอบ password"],1,"header มาเป็น 'Bearer &lt;token&gt;' split ด้วยช่องว่างแล้วเอาตัวที่ index 1"],
+["L13","middleware ตรวจ token ผ่านแล้ว ต้องเรียกอะไรเพื่อให้ไปถึง handler",["res.send()","next()","return true","jwt.sign()"],1,"next() ส่งต่อไปยัง middleware/handler ถัดไป ถ้า verify ไม่ผ่านตอบ 401"],
+["L13","ผลลัพธ์จาก <code>axios.get(url)</code> อยู่ที่ใด",["res.body","res.json()","res.data","res.results"],2,"Axios แปลง JSON ให้อัตโนมัติและเก็บไว้ที่ res.data"],
+["L13","โปรแกรมที่ใช้ทดสอบ web service ในวิชานี้คือ",["MySQL Workbench","Postman","nodemon","Vite"],1,"Postman ใช้สร้าง request (method, URL, body) เพื่อทดสอบ API ตามที่ทำใน Lab13"],
+["L14","ข้อใดถูกต้องเกี่ยวกับ props",["component แก้ props ของตัวเองได้","props เป็น read-only และส่งจาก parent ลง child","props เก็บใน this.state","props ใช้ได้เฉพาะ class component"],1,"props อ่านอย่างเดียว ถ้าต้องเปลี่ยนค่าให้ใช้ state"],
+["L14","อัปเดต state ใน class component ที่ถูกต้องคือ",["this.state.value = 'X'","this.setState({value: 'X'})","state.value('X')","this.props.value = 'X'"],1,"ต้องใช้ setState เพื่อให้ React รู้และ re-render"],
+["L14","Lifting State Up คือ",["ย้าย state ขึ้นไปไว้ที่ parent แล้วส่งลงเป็น props","ลบ state ทิ้ง","เก็บ state ใน localStorage","แปลง function component เป็น class"],0,"ใน Tic Tac Toe ย้าย squares จาก Square ไปไว้ที่ Board แล้วส่ง value และ onClick ลงไป"],
+["L14","ทำไม handleClick ใช้ <code>this.state.squares.slice()</code>",["เพื่อเรียงลำดับ","เพื่อ copy array ก่อนแก้ ไม่แก้ state ตรง ๆ","เพื่อลบช่องว่าง","เพื่อแปลงเป็น string"],1,"copy ก่อนแก้ (immutability) แล้วค่อย setState ด้วย array ใหม่"],
+["L14","ลำดับการทำงานของ Virtual DOM เมื่อ state เปลี่ยน",["Reconciliation → Diffing → Re-render","Re-render → Diffing → Reconciliation","Diffing → Re-render → Reconciliation","อัปเดต real DOM ทั้งหน้าทันที"],1,"state/props เปลี่ยน → สร้าง VDOM ใหม่ → เทียบกับของเดิม (diffing) → อัปเดต DOM จริงเท่าที่จำเป็น (reconciliation)"],
+["L14","React ใช้ data binding แบบใดเป็นหลัก",["Two-way","One-way จาก parent ไป child","No binding","Three-way"],1,"one-way data binding ทำให้พฤติกรรมคาดเดาได้และควบคุมง่าย"],
+["L14","การผูก event ใน React ที่ถูกต้องคือ",["<button onclick=\"handleClick()\">","<button onClick={handleClick}>","<button onClick=\"handleClick\">","<button on-click={handleClick()}>"],1,"React ใช้ camelCase และส่งฟังก์ชัน ไม่ใช่ string และไม่ใส่ () ไม่งั้นจะเรียกทันทีตอน render"],
+["L14","ใน React จะกัน default behavior ของลิงก์ได้อย่างไร",["return false","e.preventDefault()","e.stop()","ใส่ href=\"#\" อย่างเดียว"],1,"React ไม่รองรับ return false ต้องเรียก e.preventDefault()"],
+["L14","ถ้าไม่ bind <code>this.handleClick</code> ใน class component แล้วส่งให้ onClick จะเกิดอะไร",["ทำงานปกติ","this ใน handleClick เป็น undefined","React bind ให้เอง","ปุ่มไม่แสดง"],1,"method ของ class ไม่ถูก bind อัตโนมัติ ต้อง bind ใน constructor หรือใช้ arrow function"],
+["L14","key ใน React list มีไว้เพื่ออะไร",["ใส่สี","ระบุว่า item ไหนเปลี่ยน เพิ่ม หรือถูกลบ","เข้ารหัสข้อมูล","เรียงลำดับอัตโนมัติ"],1,"key ต้องไม่ซ้ำกันใน list และใส่ที่ element ที่สร้างใน map()"],
+["L14","Controlled component คือ",["form ที่ DOM จัดการค่าเอง","input ที่ค่าผูกกับ state ผ่าน value และ onChange","component ที่ไม่มี props","component ที่ใช้ jQuery"],1,"ค่าของ input มาจาก state และอัปเดตผ่าน setState ใน onChange"],
+["L14","lifecycle method ใดเหมาะกับการเรียก clearInterval",["componentDidMount","componentDidUpdate","componentWillUnmount","render"],2,"componentWillUnmount ทำงานก่อน component ถูกทำลาย ใช้คืนทรัพยากร (DateClock เริ่ม setInterval ใน componentDidMount)"],
+["L14","<code>this.setState({ [e.target.name]: e.target.value })</code> ใช้เทคนิคใด",["Destructuring","Computed property name ของ ES6","Spread operator","Optional chaining"],1,"[ ] ทำให้ชื่อ key มาจากค่า name ของ input ทำให้ใช้ handleChange เดียวกับหลาย input ได้"],
+["L14","คำสั่งสร้างโปรเจกต์ React ที่ใช้ในสไลด์คือ",["npm init react","npm create vite@latest myreact -- --template react-swc","npm install react-start","node create react"],1,"สไลด์ใช้ Vite + SWC แล้ว npm install และ npm run dev (แลปใช้ npx create-react-app)"]
+];
+
+const lecs = ["ทั้งหมด","L09","L10","L11","L12","L13","L14"];
+let filter = "ทั้งหมด", order = Q.map((_, i) => i), answers = {};
+try { answers = JSON.parse(localStorage.getItem("itds241-ans") || "{}"); } catch (e) { answers = {}; }
+const save = () => { try { localStorage.setItem("itds241-ans", JSON.stringify(answers)); } catch (e) {} };
+
+const fbox = document.getElementById("filters");
+fbox.innerHTML = lecs.map(l => `<button type="button" data-l="${l}" aria-pressed="${l === filter}">${l}</button>`).join("");
+fbox.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  filter = b.dataset.l;
+  for (const x of fbox.children) x.setAttribute("aria-pressed", x === b);
+  render();
+});
+document.getElementById("shuffle").addEventListener("click", () => {
+  for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  render();
+});
+document.getElementById("reset").addEventListener("click", () => { answers = {}; save(); render(); });
+
+const qs = document.getElementById("qs"), score = document.getElementById("score");
+function render() {
+  const list = order.filter(i => filter === "ทั้งหมด" || Q[i][0] === filter);
+  qs.innerHTML = list.map((i, n) => {
+    const [l, q, opts, ans, ex] = Q[i], a = answers[i], done = a !== undefined;
+    return `<div class="q${done ? " done" : ""}" data-i="${i}">
+      <div class="ql">${n + 1} · ${l}</div><div class="qt">${q}</div>
+      <div class="opts">${opts.map((o, k) => `<button type="button" class="opt${done && k === ans ? " ok" : ""}${done && k === a && a !== ans ? " no" : ""}" data-k="${k}"${done ? " disabled" : ""}>${esc(o)}</button>`).join("")}</div>
+      <div class="exp"><b>${done ? (a === ans ? "ถูกต้อง" : "ยังไม่ถูก") : ""}</b> ${ex}</div></div>`;
+  }).join("");
+  const did = list.filter(i => answers[i] !== undefined), right = did.filter(i => answers[i] === Q[i][3]);
+  score.innerHTML = `${right.length}/${did.length} <small>ถูก · ทำแล้ว ${did.length} จาก ${list.length} ข้อ</small>`;
+}
+qs.addEventListener("click", e => {
+  const b = e.target.closest(".opt"); if (!b || b.disabled) return;
+  const i = +b.closest(".q").dataset.i;
+  answers[i] = +b.dataset.k; save();
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+});
+render();
+
+// ---------- one chapter per page ----------
+const chapters = [["l09","L09 Node.js Part I"],["l10","L10 Express"],["l11","L11 Cookie/Session/DB"],["l12","L12 Web Services"],["l13","L13 WS + Node.js"],["l14","L14 React"]];
+const cnt = l => Q.filter(q => q[0] === l).length;
+chapters.forEach(([id, name], i) => {
+  const sec = document.getElementById(id); if (!sec) return;
+  const prev = chapters[i - 1], next = chapters[i + 1], L = id.toUpperCase();
+  const p = document.createElement("div"); p.className = "pager";
+  p.innerHTML = (prev ? `<a href="#${prev[0]}"><small>บทก่อนหน้า</small>${prev[1]}</a>` : `<a href="#home"><small>กลับ</small>หน้าแรก</a>`)
+    + `<a class="go" href="#quiz-${id}"><small>ทดสอบตัวเอง</small>ทำข้อสอบบทนี้ ${cnt(L)} ข้อ</a>`
+    + (next ? `<a class="next" href="#${next[0]}"><small>บทถัดไป</small>${next[1]}</a>` : `<a class="next" href="#cheat"><small>ต่อไป</small>ชีทท่องจำ</a>`);
+  sec.querySelector(".wrap").appendChild(p);
+});
+const views = [...document.querySelectorAll(".view")];
+const navLinks = [...document.querySelectorAll("nav.scroll a")];
+function route() {
+  let h = location.hash.slice(1) || "home";
+  let q = null;
+  const m = h.match(/^quiz-(l\d\d)$/);
+  if (m) { q = m[1].toUpperCase(); h = "quiz"; }
+  if (!document.getElementById(h) || !document.getElementById(h).classList.contains("view")) h = "home";
+  views.forEach(v => v.classList.toggle("on", v.id === h));
+  navLinks.forEach(a => a.getAttribute("href") === "#" + h ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  if (h === "quiz") {
+    filter = q || (m ? filter : filter);
+    if (q) for (const x of fbox.children) x.setAttribute("aria-pressed", x.dataset.l === q);
+    render();
+  }
+  window.scrollTo(0, 0);
+  const cur = navLinks.find(a => a.hasAttribute("aria-current"));
+  if (cur) cur.scrollIntoView({ block: "nearest", inline: "center" });
+}
+window.addEventListener("hashchange", route);
+route();
+}
+</script>
+</body>
+</html>
