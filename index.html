@@ -45,6 +45,14 @@ header p{margin:0;max-width:62ch;color:#cfe6d2}
 .flowcap{font-size:13.5px;color:#cfe6d2;margin-top:12px}
 @media(max-width:900px){.pipe{grid-template-columns:repeat(3,minmax(0,1fr))}.pipe a::after{display:none}}
 @media(max-width:520px){.pipe{grid-template-columns:repeat(2,minmax(0,1fr))}.pipe a{min-height:0}}
+.src{color:var(--soft);margin:0 0 18px}
+.fix{background:light-dark(#fff8e6,#2a2210);border-left:4px solid light-dark(#b7791f,#f0b84c);border-radius:0 10px 10px 0;padding:14px 16px;margin:10px 0 0;max-width:920px}
+.fix h3{margin:0 0 6px;color:light-dark(#8a5a12,#f0b84c);font-size:17px}
+.fix p{margin:6px 0 10px}
+a.labgo{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--node)}
+.lec.react a.labgo{color:var(--react)}
+nav.scroll a.lb{border-style:dashed}
+.lede a{color:var(--node);font-weight:600}
 .view{display:none}.view.on{display:block}
 nav.scroll a[aria-current=page]{border-color:var(--node);background:light-dark(#e8f5e9,#173a1a);color:var(--node);font-weight:600}
 nav.scroll a.q[aria-current=page]{background:var(--node);color:var(--bg)}
@@ -144,10 +152,16 @@ footer{padding:28px max(5vw,16px);color:var(--soft);font-size:14px}
 <p class="flowcap">Browser ส่ง request → Express จัด route และ middleware → คุยกับ MySQL → ตอบกลับเป็น HTML หรือ JSON → React แสดงผล</p>
 </div>
 </header>
-<div class="band"><div class="wrap"><h2 style="font-size:24px;margin-bottom:12px">ทางลัด</h2><div class="homelist"><a href="#cheat"><b>ชีทท่องจำ</b><span>ตารางเดียว อ่านก่อนเข้าห้องสอบ</span></a><a href="#quiz"><b>ข้อสอบฝึกทุกบท</b><span>65 ข้อ มีเฉลยทันที</span></a></div></div></div></div>
+<div class="band"><div class="wrap"><h2 style="font-size:24px;margin-bottom:12px">ทางลัด</h2><div class="homelist"><a href="#cheat"><b>ชีทท่องจำ</b><span>ตารางเดียว อ่านก่อนเข้าห้องสอบ</span></a><a href="#quiz"><b>ข้อสอบฝึกทุกบท</b><span>65 ข้อ มีเฉลยทันที</span></a></div><h2 style="font-size:24px;margin:26px 0 12px">แลป: โค้ดของคุณพร้อมคำอธิบาย</h2><div class="homelist">
+<a href="#lab09"><b>Lab09</b><span>Hello server ด้วย http module</span></a>
+<a href="#lab10"><b>Lab10</b><span>Express + form + redirect</span></a>
+<a href="#lab11"><b>Lab11</b><span>ค้นหาอาจารย์จาก tinycollege</span></a>
+<a href="#lab12"><b>Lab12</b><span>spoonacular API ด้วย fetch</span></a>
+<a href="#lab13"><b>Lab13</b><span>StudentService.js ทำ CRUD</span></a>
+<a href="#lab14"><b>Lab14</b><span>InfoForm สองแบบด้วย React</span></a></div></div></div></div>
 
 <nav class="scroll" aria-label="ไปยังบท">
-<a href="#home">หน้าแรก</a><a href="#l09">L09 Node.js</a><a href="#l10">L10 Express</a><a href="#l11">L11 Cookie/Session/DB</a><a href="#l12">L12 Web Services</a><a href="#l13">L13 WS + Node</a><a href="#l14">L14 React</a><a href="#cheat">ชีทท่องจำ</a><a href="#quiz" class="q">ข้อสอบฝึก</a>
+<a href="#home">หน้าแรก</a><a href="#l09">L09 Node.js</a><a href="#l10">L10 Express</a><a href="#l11">L11 Cookie/Session/DB</a><a href="#l12">L12 Web Services</a><a href="#l13">L13 WS + Node</a><a href="#l14">L14 React</a><a href="#lab09" class="lb">Lab09</a><a href="#lab10" class="lb">Lab10</a><a href="#lab11" class="lb">Lab11</a><a href="#lab12" class="lb">Lab12</a><a href="#lab13" class="lb">Lab13</a><a href="#lab14" class="lb">Lab14</a><a href="#cheat">ชีทท่องจำ</a><a href="#quiz" class="q">ข้อสอบฝึก</a>
 </nav>
 
 <!-- ================= L09 ================= -->
@@ -264,26 +278,7 @@ myServer.listen(8081, () => console.log("Listening on the port 8081"));
 
 <div class="lab"><h3>Lab09: Hello server</h3>
 <p>โจทย์คือ port 8081, <code>/hello</code> ตอบ plain text <code>Hello from Server: {Date.now()}</code>, <code>/signin</code> ส่ง sign-in.html, path อื่นส่ง error.html พร้อมสถานะ 404 และ log <code>Req: {url}</code> ทุกครั้ง</p>
-<details><summary>ดูเฉลยแบบสั้น</summary>
-<div class="codebox"><div class="cap">server.js</div><pre><script type="text/plain">const http = require("http"), fs = require("fs"), path = require("path");
-
-http.createServer((req, res) => {
-  console.log(`Req: ${req.url}`);           // log ตาม path จริง
-  if (req.url === "/hello") {
-    const msg = `Hello from Server: ${Date.now()}`;
-    console.log(msg);
-    res.writeHead(200, { "Content-Type": "text/plain" });   // writeHead = ตั้ง status+header ทีเดียว
-    res.end(msg);
-  } else {
-    const ok = req.url === "/signin";
-    fs.readFile(path.join(__dirname, ok ? "sign-in.html" : "error.html"), (err, data) => {
-      res.writeHead(ok ? 200 : 404, { "Content-Type": "text/html" });
-      res.end(data);
-    });
-  }
-}).listen(8081, () => console.log("Listening on the port 8081"));</script></pre></div>
-<p>เทียบกับงานที่ส่งไป: /hello ควรเป็น text/plain ตามโจทย์ และ log ควรใช้ <code>req.url</code> แทนการพิมพ์ path ตายตัว (ในงานเดิมมี "/sigin" พิมพ์ผิดอยู่)</p>
-</details></div>
+<p><a class="labgo" href="#lab09">อ่านโค้ดแลปนี้ของคุณพร้อมคำอธิบายทีละขั้น</a></p></div>
 </div></div>
 </div></section>
 
@@ -383,25 +378,7 @@ router.post('/form-post', (req, res) => {
 
 <div class="lab"><h3>Lab10: form + redirect (port 3030)</h3>
 <p><code>GET /</code> ตอบ "Hello World! in plain text" · <code>GET /signin</code> ส่ง sign-in.html ที่ form เป็น POST ไป <code>/form-submit</code> · route นั้น log อีเมลกับ timestamp แล้ว redirect ไป <code>/member</code> ซึ่งส่ง success.html · path อื่น log "404: Invalid accessed" แล้วส่ง error.html</p>
-<details><summary>ดูโค้ดหลัก</summary>
-<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">app.use(express.urlencoded({ extended: true }));
-
-app.post('/form-submit', (req, res) => {
-  console.log("Request at /form-submit");
-  console.log(`Form submitted by ${req.body.email} at ${Date.now()}`);
-  res.redirect('/member');          // ไม่ตอบอะไร แค่สั่ง browser ไปอีก path
-});
-
-app.get('/member', (req, res) => {
-  console.log("Request at /member");
-  res.sendFile(path.join(__dirname, 'html', 'success.html'));
-});
-
-app.use((req, res) => {             // ท้ายสุดเสมอ
-  console.log(`Request at ${req.path}`);
-  console.log('404: Invalid accessed');
-  res.status(404).sendFile(path.join(__dirname, 'html', 'error.html'));
-});</script></pre></div></details></div>
+<p><a class="labgo" href="#lab10">อ่านโค้ดแลปนี้ของคุณพร้อมคำอธิบายทีละขั้น</a></p></div>
 </div></div>
 </div></section>
 
@@ -517,25 +494,7 @@ connection.query('SELECT * FROM Professor WHERE emp_num = ?', [empNum], callback
 
 <div class="lab"><h3>Lab11: ค้นหาอาจารย์ใน tinycollege</h3>
 <p>port 3030, ค่า config อยู่ใน .env, <code>GET /</code> ส่ง searchProf.html ที่ form POST ไป <code>/form-submit</code> แล้ว server เอา Employee Number ไปค้นใน Professor ด้วย emp_num เจอก็ log "Found" ส่ง found.html ไม่เจอ log "Not found"</p>
-<details><summary>ดูโค้ดหลัก</summary>
-<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">require('dotenv').config();
-app.use(express.urlencoded({ extended: true }));
-
-app.post('/form-submit', (req, res) => {
-  const empNum = req.body.emp_num;               // name="emp_num" ใน form
-  console.log(`Form submitted with Emp Num: ${empNum}`);
-  connection.query('SELECT * FROM Professor WHERE emp_num = ?', [empNum],
-    (err, results) => {
-      if (err) return res.status(500).send('Database error');
-      if (results.length > 0) {                  // มีแถวกลับมา = เจอ
-        console.log('Found'); console.log(results);
-        res.sendFile(path.join(__dirname, 'html', 'found.html'));
-      } else {
-        console.log('Not found');
-        res.sendFile(path.join(__dirname, 'html', 'notfound.html'));
-      }
-    });
-});</script></pre></div></details></div>
+<p><a class="labgo" href="#lab11">อ่านโค้ดแลปนี้ของคุณพร้อมคำอธิบายทีละขั้น</a></p></div>
 </div></div>
 </div></section>
 
@@ -645,17 +604,7 @@ request.onerror = () => console.log("request failed");
 
 <div class="lab"><h3>Lab12: ค้นหาสูตรอาหารจาก spoonacular</h3>
 <p>สมัครเอา API key แล้วใช้ fetch เรียก Search Recipes (complexSearch) ด้วยคำค้นอย่าง Chicken จากนั้นแสดงชื่อกับรูปอาหารจาก <code>results</code> เซฟเป็น webservice-lab.html</p>
-<details><summary>ดูโค้ดตัวอย่าง</summary>
-<div class="codebox"><div class="cap">webservice-lab.html (script)</div><pre><script type="text/plain">async function search() {
-  const q = document.querySelector("#q").value;
-  const url = `https://api.spoonacular.com/recipes/complexSearch?query=${q}&number=20&apiKey=${API_KEY}`;
-  const res = await fetch(url);          // ขั้น 1
-  if (!res.ok) return console.log(res.status);
-  const data = await res.json();         // ขั้น 2
-  document.querySelector("#output").innerHTML = data.results
-    .map(r => `<div><img src="${r.image}"><p>${r.title}</p></div>`)
-    .join("");
-}</script></pre></div></details></div>
+<p><a class="labgo" href="#lab12">อ่านโค้ดแลปนี้ของคุณพร้อมคำอธิบายทีละขั้น</a></p></div>
 </div></div>
 </div></section>
 
@@ -841,27 +790,7 @@ axios.get("http://localhost:3000/students", { responseType: 'json' })
 
 <div class="lab"><h3>Lab13: StudentService.js + Postman</h3>
 <p>สร้าง DB <code>itds242-[Section]</code> ตาราง personal_info (StudentID, Firstname, Lastname, Birthdate, Mobilephone) ใส่ 3 แถว ทำ Insert, Update, Delete, Select, Select all แล้วทดสอบทุกตัวด้วย Postman ทำรายงานเป็น PDF</p>
-<details><summary>ดูโค้ดที่ส่ง (ย่อ)</summary>
-<div class="codebox"><div class="cap">StudentService.js</div><pre><script type="text/plain">app.use(express.json());
-const send = (res, status, error, data, message) =>
-  res.status(status).json({ error, data, message });   // ช่วยให้ทุก route ตอบรูปแบบเดียวกัน
-
-app.get('/student/:id', (req, res) => {
-  db.query('SELECT * FROM personal_info WHERE StudentID = ?', [req.params.id], (err, rows) => {
-    if (err) return send(res, 500, true, null, err.message);
-    if (rows.length === 0) return send(res, 404, true, null, 'Student not found.');
-    send(res, 200, false, rows[0], 'Student found.');
-  });
-});
-
-app.delete('/student/:id', (req, res) => {
-  db.query('DELETE FROM personal_info WHERE StudentID = ?', [req.params.id], (err, result) => {
-    if (result.affectedRows === 0) return send(res, 404, true, null, 'Student not found.');
-    send(res, 200, false, result, 'Student has been deleted successfully.');
-  });
-});</script></pre></div>
-<p>ในสไลด์ PUT กับ DELETE รับ id จาก body แต่ในแลปรับจาก <code>/:id</code> ทั้งสองแบบใช้ได้ ถ้าข้อสอบให้อ่านโค้ด ดูให้ดีว่าอ่านจาก req.body หรือ req.params</p>
-</details></div>
+<p><a class="labgo" href="#lab13">อ่านโค้ดแลปนี้ของคุณพร้อมคำอธิบายทีละขั้น</a></p></div>
 </div></div>
 </div></section>
 
@@ -1077,32 +1006,587 @@ class TextClick extends React.Component {
 
 <div class="lab"><h3>Lab14: InfoForm สองแบบผ่าน props.type</h3>
 <p><code>type="normal"</code> มีชื่อ นามสกุล อายุ ส่วน <code>type="special"</code> เพิ่ม Nationality กับ Disability กด Submit แล้ว alert ข้อมูล (normal บอกอายุ special บอกสัญชาติ)</p>
-<details><summary>ดูโค้ดหลัก</summary>
-<div class="codebox"><div class="cap">index.js</div><pre><script type="text/plain">function InfoForm(props) {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const d = new FormData(e.target);     // uncontrolled: อ่านค่าจาก form ตอน submit
-    if (props.type === "normal")
-      alert(`Hello, ${d.get("firstName")} ${d.get("lastName")}\nYour age is ${d.get("age")}`);
-    else
-      alert(`Hello, ${d.get("firstName")} ${d.get("lastName")}\nYour nationality is ${d.get("nationality")}`);
-  };
-  return (
-    <form onSubmit={handleSubmit}>
-      <input name="firstName" /> <input name="lastName" /> <input type="number" name="age" />
-      {props.type === "special" && (      // แสดงเฉพาะแบบ special
-        <>
-          <select name="nationality">...</select>
-          <select name="disability">...</select>
-        </>
-      )}
-      <button type="submit">Submit</button>
-    </form>
+<p><a class="labgo" href="#lab14">อ่านโค้ดแลปนี้ของคุณพร้อมคำอธิบายทีละขั้น</a></p></div>
+</div></div>
+</div></section>
+
+<!-- ================= LAB PAGES ================= -->
+<section class="lec band view labpage" id="lab09"><div class="wrap">
+<div class="lhead"><span class="tag">Lab09</span><h2>Hello server ด้วย http module</h2></div>
+<p class="lede">โจทย์: server ที่ port 8081 มี 3 ทาง คือ <code>/hello</code> ตอบข้อความ <code>Hello from Server: {timestamp}</code>, <code>/signin</code> ส่งหน้า sign-in.html และ path อื่นส่ง error.html พร้อมสถานะ 404 ทุก request ต้อง log <code>Req: {path}</code> ใน terminal เนื้อหาอยู่ในบท <a href="#l09">L09</a></p>
+<div class="grid"><div>
+<p class="src">ไฟล์ที่ส่ง: <code>server.js</code></p>
+
+<div class="step"><h3><span class="n">1</span>เรียก module ที่ต้องใช้</h3>
+<div class="codebox"><div class="cap">server.js บรรทัดแรก ๆ</div><pre><script type="text/plain">/*
+* Rawinan Bunsai
+*section 1
+*/
+
+const http = require("http");
+const fs = require("fs");
+const path = require("path");</script></pre></div>
+<p>เปิดไฟล์ด้วยคอมเมนต์ชื่อกับ section ตามที่โจทย์สั่ง แล้วดึง built-in module เข้ามา 3 ตัว: <code>http</code> ไว้สร้าง server, <code>fs</code> ไว้อ่านไฟล์ HTML และ <code>path</code> ไว้ต่อ path ของไฟล์ให้ถูก ทั้งสามตัวมากับ Node อยู่แล้ว ไม่ต้อง npm install</p></div>
+
+<div class="step"><h3><span class="n">2</span>สร้าง server และทาง /hello</h3>
+<div class="codebox"><div class="cap">server.js</div><pre><script type="text/plain">const server = http.createServer((req, res) => {
+    if (req.url === "/hello") {
+        res.statusCode = 200;
+        res.setHeader("Content-Type","text/html");
+
+        const message = `Hello from Server: ${Date.now()}`;
+        console.log("Req: /hello");
+        console.log(message);
+        res.end(message);</script></pre></div>
+<p><code>http.createServer</code> รับฟังก์ชันที่จะถูกเรียกทุกครั้งที่มี request เข้ามา ได้ <code>req</code> (สิ่งที่ browser ขอมา) กับ <code>res</code> (สิ่งที่เราจะตอบกลับ) เราดูว่าขอ path ไหนจาก <code>req.url</code></p>
+<p>ถ้าเป็น /hello ก็ตั้งสถานะ 200 สร้างข้อความด้วย template literal ที่มี <code>Date.now()</code> (จำนวนมิลลิวินาทีนับจาก 1 ม.ค. 1970) แล้ว log สองบรรทัดตามตัวอย่างในโจทย์ จบด้วย <code>res.end(message)</code> ซึ่งส่งข้อความและปิด response ไปพร้อมกัน</p></div>
+
+<div class="step"><h3><span class="n">3</span>ทาง /signin: อ่านไฟล์แล้วส่งกลับ</h3>
+<div class="codebox"><div class="cap">server.js</div><pre><script type="text/plain">    } else if (req.url === "/signin") {
+        const filePath = path.join(__dirname,"sign-in.html");
+
+        fs.readFile(filePath,(err, data) => {
+            if (err) {
+                res.statusCode = 500;
+                res.end("Internal Server Error");
+                return;
+            }
+
+            console.log("Req: /sigin");
+            res.statusCode = 200;
+            res.setHeader("Content-Type","text/html; charset=utf-8");
+            res.end(data);
+        });</script></pre></div>
+<p><code>path.join(__dirname, "sign-in.html")</code> ได้ path เต็มของไฟล์ที่อยู่โฟลเดอร์เดียวกับ server.js ข้อดีคือรัน <code>node server.js</code> จากโฟลเดอร์ไหนก็หาไฟล์เจอ</p>
+<p><code>fs.readFile</code> เป็นแบบ async จึงต้องส่ง callback <code>(err, data)</code> เข้าไป เมื่ออ่านเสร็จ ถ้ามี err (เช่นไม่มีไฟล์) ก็ตอบ 500 แล้ว <code>return</code> ออก ถ้าไม่มี err ก็ตั้ง Content-Type เป็น HTML ใส่ charset=utf-8 ให้ภาษาไทยไม่เพี้ยน แล้วส่ง <code>data</code> (เนื้อไฟล์) กลับไป การ res.end ต้องอยู่<b>ใน</b> callback เพราะนอก callback ไฟล์ยังอ่านไม่เสร็จ</p></div>
+
+<div class="step"><h3><span class="n">4</span>path อื่นทั้งหมด: 404</h3>
+<div class="codebox"><div class="cap">server.js</div><pre><script type="text/plain">    } else {
+        const filePath = path.join(__dirname,"error.html");
+
+        fs.readFile(filePath,(err,data) => {
+            res.statusCode = 404;
+            res.setHeader("Content-Type","text/html; charset=utf-8");
+
+            if (err) {
+                res.end("404 Not Found");
+                return;
+            }
+            console.log("Req: /mehh");
+            res.end(data);
+        });
+    }
+});</script></pre></div>
+<p>else รับทุก path ที่ไม่ใช่สองทางแรก โครงเหมือนข้อ 3 แต่สถานะเป็น 404 ตั้งแต่แรก ถ้าอ่าน error.html ไม่ได้ก็ยังตอบ 404 เป็นข้อความสั้น ๆ แทน</p></div>
+
+<div class="step"><h3><span class="n">5</span>เปิด server</h3>
+<div class="codebox"><div class="cap">server.js</div><pre><script type="text/plain">server.listen(8081, () => {
+    console.log("Listening on the port 8081");
+});</script></pre></div>
+<p><code>listen</code> ผูก server กับ port 8081 callback จะทำงานครั้งเดียวตอน server พร้อม ข้อความ log ตรงกับตัวอย่างผลลัพธ์ที่ 1 ของโจทย์</p></div>
+
+<div class="fix"><h3>จุดที่ควรแก้</h3>
+<p>log ถูกพิมพ์ path ตายตัวไว้ ทาง /signin พิมพ์ว่า <code>Req: /sigin</code> (สะกดผิด) ส่วน path อื่นพิมพ์ <code>Req: /mehh</code> ทุกครั้ง ถ้าเข้า <code>/abc</code> ก็ยังขึ้น /mehh ซึ่งไม่ตรงโจทย์ ทางแก้คือ log ครั้งเดียวที่บรรทัดแรกของ createServer แล้วลบ log ตายตัวทั้งหมด</p>
+<p>อีกจุดคือโจทย์ให้ /hello ตอบเป็น plain text แต่โค้ดตั้งเป็น text/html หน้าตาใน browser จะเหมือนกัน แต่ถ้าตรวจตามโจทย์ควรเป็น text/plain</p>
+<div class="codebox"><div class="cap">แก้แล้ว</div><pre><script type="text/plain">const server = http.createServer((req, res) => {
+    console.log(`Req: ${req.url}`);           // log ตาม path จริงทุก request
+    if (req.url === "/hello") {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "text/plain");
+        // ...</script></pre></div></div>
+</div></div>
+</div></section>
+
+<section class="lec band view labpage" id="lab10"><div class="wrap">
+<div class="lhead"><span class="tag">Lab10</span><h2>Express + form + redirect</h2></div>
+<p class="lede">โจทย์: Express ที่ port 3030 มี <code>GET /</code> ตอบข้อความ, <code>GET /signin</code> ส่งฟอร์ม, ฟอร์ม POST ไป <code>/form-submit</code> ซึ่ง log อีเมลกับเวลาแล้ว redirect ไป <code>/member</code>, และ path อื่นส่ง error.html เนื้อหาอยู่ในบท <a href="#l10">L10</a></p>
+<div class="grid"><div>
+<p class="src">ไฟล์ที่ส่ง: <code>app.js</code> และ <code>html/sign-in.html</code></p>
+
+<div class="step"><h3><span class="n">1</span>ตั้งแอปและตัวแกะ form</h3>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">const express = require('express');
+const path = require('path');
+
+const app = express();
+const PORT = 3030;
+
+app.use(express.urlencoded({ extended: true}));</script></pre></div>
+<p><code>express()</code> สร้างแอป บรรทัด <code>app.use(express.urlencoded(...))</code> สำคัญมาก ฟอร์มที่ส่งแบบ POST จะส่งข้อมูลมาใน body ถ้าไม่มีบรรทัดนี้ <code>req.body</code> จะเป็น undefined ตัวนี้ทำหน้าที่แกะ body แบบ form ให้กลายเป็น object</p></div>
+
+<div class="step"><h3><span class="n">2</span>หน้าแรกกับหน้าฟอร์ม</h3>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">app.get('/' , (req,res) => {
+    res.send("Hello World! in plain text")
+    console.log("Request at /");
+});
+
+app.get('/signin', (req,res) => {
+    res.sendFile(path.join(__dirname,'html', 'sign-in.html'));
+    console.log("Request at /signin");
+    console.log("Retrieve a form");
+});</script></pre></div>
+<p><code>app.get(path, handler)</code> คือ "ถ้ามี GET มาที่ path นี้ ให้ทำแบบนี้" <code>res.send</code> ตอบข้อความ ส่วน <code>res.sendFile</code> ส่งไฟล์ ซึ่ง Express บังคับให้ใช้ absolute path จึงต้องต่อ <code>__dirname</code> กับโฟลเดอร์ <code>html</code> ตามโครงสร้างที่โจทย์กำหนด</p>
+<p>ตรงนี้ใช้ <code>app.get</code> ตรง ๆ ไม่ได้สร้าง <code>express.Router()</code> แบบในสไลด์ ผลเหมือนกัน router มีประโยชน์ตอนอยากแยก route เป็นกลุ่ม</p></div>
+
+<div class="step"><h3><span class="n">3</span>ฟอร์มใน sign-in.html</h3>
+<div class="codebox"><div class="cap">html/sign-in.html (ส่วน form)</div><pre><script type="text/plain"><form action="/form-submit" method="POST">
+  <div class="form-floating">
+    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+    <label for="floatingInput">Email address</label>
+  </div>
+  <div class="form-floating">
+    <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+    <label for="floatingPassword">Password</label>
+  </div>
+  <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+</form></script></pre></div>
+<p><code>action="/form-submit"</code> กับ <code>method="POST"</code> ตรงกับ route ฝั่ง server ถูกต้องตามโจทย์ ฟอร์มเป็น template ของ Bootstrap</p></div>
+
+<div class="step"><h3><span class="n">4</span>รับฟอร์มแล้ว redirect</h3>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">app.post('/form-submit', (req, res) => {
+    console.log("Request at /form-submit");
+    console.log(`Form submitted by ${req.body.email} at ${Date.now()}`);
+    res.redirect('/member');
+});
+
+app.get('/member', (req, res) => {
+    console.log("Request at /member");
+    res.sendFile(path.join(__dirname,'html', 'success.html'));
+});</script></pre></div>
+<p>route นี้ใช้ <code>app.post</code> เพราะฟอร์มส่งมาแบบ POST ข้อมูลอ่านจาก <code>req.body</code> แล้ว <code>res.redirect('/member')</code> สั่งให้ browser ไปขอ /member ต่อเอง (browser จะส่ง GET ใหม่อีกครั้ง) route /member จึงเป็น GET ที่ส่ง success.html</p></div>
+
+<div class="step"><h3><span class="n">5</span>จับ path ที่ไม่มี และเปิด server</h3>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">app.use((req,res) => {
+    console.log(`Request at ${req.path}`);
+    console.log('404: Invalid accessed');
+    res.status(404).sendFile(path.join(__dirname, 'html', 'error.html'))
+})
+
+app.listen(3030, () => {
+    console.log("Server listening on port: 3030");
+});</script></pre></div>
+<p><code>app.use</code> ที่ไม่ใส่ path จะรับทุก request ที่หลุดมาจาก route ข้างบน จึงต้องวางไว้ท้ายสุด <code>res.status(404).sendFile(...)</code> ต่อกันได้เพราะ status คืน res ตัวเดิมกลับมา ส่วนนี้ทำถูกและ log ด้วย <code>req.path</code> จริง ดีกว่า Lab09</p></div>
+
+<div class="fix"><h3>จุดที่ควรแก้</h3>
+<p>ช่อง email ใน sign-in.html <b>ไม่มี attribute <code>name</code></b> browser จะไม่ส่งค่าช่องที่ไม่มี name ไปกับฟอร์ม ผลคือ <code>req.body.email</code> เป็น undefined และ terminal ขึ้น <code>Form submitted by undefined at ...</code> แทนอีเมล แก้โดยเพิ่ม name ให้ตรงกับที่ server อ่าน</p>
+<div class="codebox"><div class="cap">แก้แล้ว</div><pre><script type="text/plain"><input type="email" name="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+<input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password"></script></pre></div>
+<p>เรื่องเล็กอีกเรื่อง: ประกาศ <code>const PORT = 3030</code> ไว้แล้ว แต่ listen ใช้เลข 3030 ตรง ๆ ควรเปลี่ยนเป็น <code>app.listen(PORT, ...)</code> แก้ port ที่เดียวจะได้ไม่ลืม</p>
+<p>จำไว้สำหรับข้อสอบ: ค่าที่ server อ่านได้มาจาก <code>name</code> ไม่ได้มาจาก <code>id</code></p></div>
+</div></div>
+</div></section>
+
+<section class="lec band view labpage" id="lab11"><div class="wrap">
+<div class="lhead"><span class="tag">Lab11</span><h2>ค้นหาอาจารย์จาก tinycollege</h2></div>
+<p class="lede">โจทย์: Express ที่ port 3030 ต่อ MySQL ฐาน tinycollege ด้วยค่าจาก .env หน้าแรกเป็นฟอร์มกรอก Employee Number พอ submit แล้ว server ไปค้นในตาราง Professor เจอก็ส่ง found.html ไม่เจอก็ส่งหน้าไม่เจอ เนื้อหาอยู่ในบท <a href="#l11">L11</a></p>
+<div class="grid"><div>
+<p class="src">ไฟล์ที่ส่ง: <code>app.js</code> และ <code>html/searchProf.html</code> (ไฟล์ .env ไม่ได้อยู่ใน repo ซึ่งถูกแล้ว เพราะมีรหัสผ่าน)</p>
+
+<div class="step"><h3><span class="n">1</span>โหลด .env และ module</h3>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">require('dotenv').config();
+
+const express = require('express');
+const mysql2 = require('mysql2');
+const path = require('path');
+
+const app = express();
+const port = process.env.PORT || 3030;
+
+app.use(express.urlencoded({ extended: true }));</script></pre></div>
+<p><code>require('dotenv').config()</code> ต้องอยู่บนสุด เพราะมันอ่านไฟล์ .env แล้วเอาค่าไปใส่ใน <code>process.env</code> ถ้าเรียกทีหลัง โค้ดที่อ่าน process.env ก่อนหน้าจะได้ undefined</p>
+<p><code>process.env.PORT || 3030</code> แปลว่าใช้ PORT จาก .env ถ้าไม่มีก็ใช้ 3030 แทน และ urlencoded ไว้แกะฟอร์ม POST เหมือน Lab10</p></div>
+
+<div class="step"><h3><span class="n">2</span>ต่อฐานข้อมูล</h3>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">const connection = mysql2.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
+});
+
+connection.connect((err) => {
+    if (err) {
+        console.error('DB connection failed:', err.message);
+        return;
+    }
+    console.log('Connected to MySQL');
+});</script></pre></div>
+<p><code>createConnection</code> สร้างตัวเชื่อมต่อจากค่าใน .env ทั้งสี่ตัว (ไฟล์ .env ต้องมี DB_HOST, DB_USER, DB_PASSWORD, DB_NAME ชื่อตรงกันทุกตัว) แล้ว <code>connect</code> ลองต่อจริง ถ้าพังจะ log สาเหตุ เช่นรหัสผิดหรือ user ไม่มีสิทธิ์ ซึ่งดีกว่า <code>throw err</code> แบบสไลด์ตรงที่ server ไม่ดับ</p></div>
+
+<div class="step"><h3><span class="n">3</span>ฟอร์มค้นหา</h3>
+<div class="codebox"><div class="cap">html/searchProf.html (ส่วน form)</div><pre><script type="text/plain"><form action="/form-submit" method="POST">
+  <div class="form-floating">
+    <input type="text" class="form-control" id="floatingInput" placeholder="Employee Number" name="emp_num">
+    <label for="floatingInput">Employee Number</label>
+  </div>
+  <button class="w-100 btn btn-lg btn-primary" type="submit">Search</button>
+</form></script></pre></div>
+<p>รอบนี้ input มี <code>name="emp_num"</code> แล้ว server จึงอ่านด้วย <code>req.body.emp_num</code> ได้ action กับ method ตรงกับ route</p>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">app.get('/', (req, res) => {
+    console.log('Request at /');
+    res.sendFile(path.join(__dirname, 'html', 'searchProf.html'));
+});</script></pre></div></div>
+
+<div class="step"><h3><span class="n">4</span>รับเลขแล้วค้นใน Professor</h3>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">app.post('/form-submit', (req, res) => {
+    console.log('Request at /form-submit');
+
+    const empNum = req.body.emp_num;
+    console.log(`Form submitted with Emp Num: ${empNum}`);
+
+    connection.query(
+        'SELECT * FROM Professor WHERE emp_num = ?',
+        [empNum],
+        (err, results) => {
+            if (err) {
+                console.error('Query error:', err.message);
+                return res.status(500).send('Database error');
+            }
+
+            console.log(`${results.length} rows returned`);
+
+            if (results.length > 0) {
+                console.log(`Found ${empNum}`);
+                res.sendFile(path.join(__dirname, 'html', 'found.html'));
+            } else {
+                console.log('Not found');
+                res.sendFile(path.join(__dirname, 'html', 'notfound.html'));
+            }
+        }
+    );
+});</script></pre></div>
+<p>ส่วนที่ควรเข้าใจที่สุดคือ <code>?</code> ใน SQL กับ <code>[empNum]</code> mysql2 จะเอาค่าใน array ไปแทนเครื่องหมาย ? และ escape ให้ ถ้าต่อ string เอง (<code>"... = " + empNum</code>) คนกรอก <code>1 OR 1=1</code> จะดึงข้อมูลอาจารย์ได้ทั้งตาราง วิธีนี้กัน SQL injection</p>
+<p>callback ได้ <code>results</code> เป็น array ของแถวที่เจอ <code>results.length &gt; 0</code> แปลว่าเจออย่างน้อยหนึ่งคน ถ้า query พัง ก็ <code>return res.status(500)</code> เพื่อจบตรงนั้น</p></div>
+
+<div class="step"><h3><span class="n">5</span>เปิด server</h3>
+<div class="codebox"><div class="cap">app.js</div><pre><script type="text/plain">app.listen(port, 'localhost', () => {
+    console.log(`Server listening on port: ${port}`);
+});</script></pre></div>
+<p>อาร์กิวเมนต์ที่สอง <code>'localhost'</code> กำหนดให้รับ request จากเครื่องตัวเองเท่านั้น ตรงกับที่โจทย์บอกว่าทำงานที่ localhost</p></div>
+
+<div class="fix"><h3>จุดที่ควรแก้</h3>
+<p>โจทย์บอกให้ log "ผลลัพธ์การค้นหา" ด้วย แต่โค้ด log แค่จำนวนแถวกับเลขที่ค้น ควรเพิ่ม <code>console.log(results)</code> ในกรณีที่เจอ จะเห็นข้อมูลอาจารย์คนนั้นใน terminal</p>
+<p>ข้อสังเกต: โจทย์เขียนว่ากรณีไม่เจอให้ส่ง found.html ด้วย ซึ่งน่าจะพิมพ์ผิด เพราะใน repo มี notfound.html มาให้ การใช้ notfound.html แบบในโค้ดจึงสมเหตุสมผล</p></div>
+</div></div>
+</div></section>
+
+<section class="lec band view labpage" id="lab12"><div class="wrap">
+<div class="lhead"><span class="tag">Lab12</span><h2>ค้นหาสูตรอาหารจาก spoonacular ด้วย fetch</h2></div>
+<p class="lede">โจทย์: หน้า HTML ที่มีช่องค้นหา เรียก Search Recipes (complexSearch) ของ spoonacular ด้วย fetch แล้วแสดงชื่อกับรูปอาหาร เนื้อหาอยู่ในบท <a href="#l12">L12</a></p>
+<div class="grid"><div>
+<p class="src">ไฟล์ที่ส่ง: <code>webservice-lab.html</code> (API key ในเว็บนี้ปิดเป็น &lt;API_KEY&gt;)</p>
+
+<div class="step"><h3><span class="n">1</span>หน้าตา HTML</h3>
+<div class="codebox"><div class="cap">webservice-lab.html</div><pre><script type="text/plain"><label for="food">Search:</label>
+<input type="text" id="food">
+<button id="btn">Search</button>
+
+<h1>Food List</h1>
+<ul id = "food_list"></ul></script></pre></div>
+<p>มีแค่ช่องพิมพ์, ปุ่ม และ <code>&lt;ul&gt;</code> ว่าง ๆ ไว้ใส่ผลลัพธ์ ทั้งหมดมี id ให้ JavaScript หาเจอ งานนี้ทำทุกอย่างฝั่ง browser ไม่มี Node เลย</p></div>
+
+<div class="step"><h3><span class="n">2</span>ค่าคงที่และหา element</h3>
+<div class="codebox"><div class="cap">&lt;Script&gt;</div><pre><script type="text/plain">const root_url ="https://api.spoonacular.com/recipes/complexSearch";
+const api_key = "<API_KEY>";
+
+const foodInput = document.getElementById("food");
+const searchBtn = document.getElementById("btn");
+const foodList = document.getElementById("food_list");
+
+searchBtn.addEventListener("click", searchFood);</script></pre></div>
+<p>เก็บ URL ของ API กับ key ไว้เป็นค่าคงที่ ดึง element สามตัวมาเก็บในตัวแปร แล้วผูกปุ่มกับฟังก์ชัน searchFood สังเกตว่าส่ง <code>searchFood</code> เฉย ๆ ไม่มีวงเล็บ ถ้าใส่ <code>searchFood()</code> มันจะรันทันทีตอนโหลดหน้า</p>
+<p>แท็ก script เขียนเป็น <code>&lt;Script&gt;</code> ตัว S ใหญ่ ใช้ได้เพราะ HTML ไม่สนตัวพิมพ์เล็กใหญ่ของชื่อแท็ก แต่ปกติเขียนตัวเล็กทั้งหมด</p></div>
+
+<div class="step"><h3><span class="n">3</span>ตรวจว่าพิมพ์อะไรมาหรือยัง</h3>
+<div class="codebox"><div class="cap">searchFood()</div><pre><script type="text/plain">async function searchFood() {
+    const keyword = foodInput.value.trim();
+
+    if (keyword === "") {
+        alert("Please enter food name");
+    return;
+    }</script></pre></div>
+<p>ฟังก์ชันเป็น <code>async</code> เพราะข้างในจะใช้ <code>await</code> <code>trim()</code> ตัดช่องว่างหัวท้าย กันกรณีพิมพ์แต่เว้นวรรค ถ้าว่างก็เตือนแล้ว return ไม่เรียก API เปล่า ๆ (เรียกแต่ละครั้งเสียโควตา)</p></div>
+
+<div class="step"><h3><span class="n">4</span>สร้าง URL แล้ว fetch</h3>
+<div class="codebox"><div class="cap">searchFood()</div><pre><script type="text/plain">    try {
+        foodList.innerHTML = "";
+        const url = `${root_url}?query=${encodeURIComponent(keyword)}&number=10&apiKey=${api_key}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("API request failed");
+        }
+
+        const data = await response.json();</script></pre></div>
+<p>ล้างผลเก่าก่อน แล้วต่อ URL เป็น query string: <code>query</code> คือคำค้น, <code>number=10</code> คือขอ 10 รายการ, <code>apiKey</code> คือ key ยืนยันตัวตน <code>encodeURIComponent</code> แปลงอักขระพิเศษ เช่นเว้นวรรคใน "fried rice" ให้อยู่ใน URL ได้</p>
+<p>ตรงนี้ตรงกับเรื่อง fetch สองขั้นในสไลด์ <code>await fetch(url)</code> คือขั้นแรก ได้ Response ทันทีที่ header มา แล้วเช็ค <code>response.ok</code> (true เมื่อ status 200 ถึง 299) เพราะ fetch ไม่ throw เองตอนได้ 401 หรือ 402 จึงต้อง throw เอง ขั้นที่สองคือ <code>await response.json()</code> อ่าน body แปลงเป็น object</p></div>
+
+<div class="step"><h3><span class="n">5</span>วาดผลลัพธ์ลงหน้า</h3>
+<div class="codebox"><div class="cap">searchFood()</div><pre><script type="text/plain">        if (data.results.length === 0) {
+            foodList.innerHTML = "<li>No food found</li>";
+        return;
+        }
+
+        data.results.forEach(food => {
+        const li = document.createElement("li");
+        li.innerHTML = `<h3>${food.title}</h3> <img src="${food.image}">`;
+        foodList.appendChild(li);
+        });
+
+    } catch (error) {
+    console.error("Error:", error);
+    foodList.innerHTML = "<li>Something went wrong!</li>";
+    }
+}</script></pre></div>
+<p>ผลจาก complexSearch อยู่ใน <code>data.results</code> เป็น array ถ้าว่างก็บอกว่าไม่เจอ ถ้ามีก็วนทีละรายการ สร้าง <code>&lt;li&gt;</code> ใส่ชื่อ (<code>title</code>) กับรูป (<code>image</code>) แล้ว appendChild เข้า ul</p>
+<p><code>try/catch</code> ครอบทั้งก้อน ทั้ง network พัง, throw จาก response.ok หรือ JSON เสีย จะมาตกที่ catch แล้วแสดงข้อความแทนหน้าค้าง</p></div>
+
+<div class="fix"><h3>ข้อสังเกต</h3>
+<p>โค้ดนี้ทำครบตามโจทย์และเขียนดีกว่าตัวอย่างในสไลด์ (มีตรวจค่าว่าง, เช็ค response.ok, try/catch)</p>
+<p>เรื่องที่ควรรู้: API key อยู่ในโค้ดฝั่ง browser ใครกด View Source ก็เห็น ใช้ทำแลปได้ แต่งานจริงควรให้ server (เช่น Node + Axios ใน L13) เป็นคนเรียก API แทน แล้วเก็บ key ไว้ใน .env</p></div>
+</div></div>
+</div></section>
+
+<section class="lec band view labpage" id="lab13"><div class="wrap">
+<div class="lhead"><span class="tag">Lab13</span><h2>StudentService.js: REST API ทำ CRUD</h2></div>
+<p class="lede">โจทย์: สร้างตาราง personal_info ในฐาน itds242-[Section] ใส่ข้อมูล 3 แถว แล้วทำ web service ที่ Insert, Update, Delete, Select และ Select all ได้ ทดสอบทุกตัวด้วย Postman เนื้อหาอยู่ในบท <a href="#l13">L13</a></p>
+<div class="grid"><div>
+<p class="src">ไฟล์ที่ส่ง: <code>StudentService.js</code> และรายงาน <code>webservic-testing.pdf</code></p>
+
+<div class="step"><h3><span class="n">1</span>ตั้งแอปและต่อฐานข้อมูล</h3>
+<div class="codebox"><div class="cap">StudentService.js</div><pre><script type="text/plain">const express = require('express');
+const mysql = require('mysql2');
+
+const app = express();
+app.use(express.json());
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '******',          // ในไฟล์จริงเป็นรหัสตัวจริง (ซ่อนไว้ในเว็บนี้)
+  database: 'itds242-1',
+  dateStrings: true,
+});
+
+db.connect(err => {
+  if (err) return console.error('DB connect error:', err.message);
+  console.log('Connected to MySQL');
+});</script></pre></div>
+<p>web service รับข้อมูลจาก Postman เป็น JSON จึงใช้ <code>express.json()</code> แทน urlencoded แบบแลปก่อน ๆ</p>
+<p><code>dateStrings: true</code> เป็น option ที่น่าสนใจ ปกติ mysql2 แปลงคอลัมน์วันที่เป็น JavaScript Date ซึ่งพอส่งเป็น JSON จะกลายเป็น <code>"1985-01-19T17:00:00.000Z"</code> (เลื่อนตาม timezone) พอเปิด option นี้จะได้ <code>"1985-01-20"</code> ตรงกับในตาราง</p></div>
+
+<div class="step"><h3><span class="n">2</span>ฟังก์ชันช่วยตอบ</h3>
+<div class="codebox"><div class="cap">StudentService.js</div><pre><script type="text/plain">// Response format: { error, data, message }
+const send = (res, status, error, data, message) =>
+  res.status(status).json({ error, data, message });</script></pre></div>
+<p>แทนที่จะเขียน <code>res.status(...).json({...})</code> ซ้ำทุก route ก็รวมไว้ในฟังก์ชันเดียว ทุก route จะตอบรูปแบบ <code>{ error, data, message }</code> เหมือนในสไลด์ <code>{ error, data, message }</code> เป็นการเขียนย่อของ <code>{ error: error, data: data, message: message }</code></p></div>
+
+<div class="step"><h3><span class="n">3</span>อ่านข้อมูล: GET</h3>
+<div class="codebox"><div class="cap">StudentService.js</div><pre><script type="text/plain">// SELECT ALL
+app.get('/students', (req, res) => {
+  db.query('SELECT * FROM personal_info', (err, rows) => {
+    if (err) return send(res, 500, true, null, err.message);
+    send(res, 200, false, rows, 'Student list.');
+  });
+});
+
+// SELECT
+app.get('/student/:id', (req, res) => {
+  db.query('SELECT * FROM personal_info WHERE StudentID = ?', [req.params.id], (err, rows) => {
+    if (err) return send(res, 500, true, null, err.message);
+    if (rows.length === 0) return send(res, 404, true, null, 'Student not found.');
+    send(res, 200, false, rows[0], 'Student found.');
+  });
+});</script></pre></div>
+<p>/students คืนทั้ง array ส่วน /student/:id อ่าน id จาก path ด้วย <code>req.params.id</code> (เรียก <code>/student/2</code> จะได้ id = "2") และส่งแค่ <code>rows[0]</code> เพราะ id ไม่ซ้ำ มีอย่างมากแถวเดียว ถ้าไม่เจอตอบ 404 ละเอียดกว่าในสไลด์ที่ไม่ได้เช็คกรณีนี้</p></div>
+
+<div class="step"><h3><span class="n">4</span>เพิ่มข้อมูล: POST</h3>
+<div class="codebox"><div class="cap">StudentService.js</div><pre><script type="text/plain">// INSERT
+app.post('/student', (req, res) => {
+  const { StudentID, Firstname, Lastname, DOB, Mobilephone } = req.body;
+  db.query(
+    'INSERT INTO personal_info (StudentID, Firstname, Lastname, DOB, Mobilephone) VALUES (?, ?, ?, ?, ?)',
+    [StudentID, Firstname, Lastname, DOB, Mobilephone],
+    (err, result) => {
+      if (err) return send(res, 500, true, null, err.message);
+      send(res, 201, false, result, 'New student has been created successfully.');
+    }
   );
-}
-ReactDOM.createRoot(document.getElementById("root")).render(<InfoForm type="special" />);</script></pre></div>
-<p>แลปนี้เป็น uncontrolled form ส่วนสไลด์สอน controlled ข้อสอบอาจถามความต่างของสองแบบ</p>
-</details></div>
+});</script></pre></div>
+<p><code>const { StudentID, ... } = req.body</code> คือ destructuring ดึง field ออกจาก JSON ที่ส่งมาทีเดียว ใน Postman จะส่ง body แบบนี้:</p>
+<div class="codebox"><div class="cap">Postman › Body › raw › JSON</div><pre><script type="text/plain">{ "StudentID": 4, "Firstname": "Anna", "Lastname": "Lee", "DOB": "2000-05-01", "Mobilephone": "0812345678" }</script></pre></div>
+<p>ต่างจากสไลด์ที่ส่ง <code>{ "student": {...} }</code> แล้วใช้ <code>INSERT ... SET ?</code> แบบในแลประบุคอลัมน์ทีละตัวซึ่งชัดเจนกว่า สถานะ <code>201</code> แปลว่า Created เหมาะกับการสร้างข้อมูลใหม่</p></div>
+
+<div class="step"><h3><span class="n">5</span>แก้และลบ: PUT, DELETE</h3>
+<div class="codebox"><div class="cap">StudentService.js</div><pre><script type="text/plain">// UPDATE
+app.put('/student/:id', (req, res) => {
+  const { Firstname, Lastname, DOB, Mobilephone } = req.body;
+  db.query(
+    'UPDATE personal_info SET Firstname = ?, Lastname = ?, DOB = ?, Mobilephone = ? WHERE StudentID = ?',
+    [Firstname, Lastname, DOB, Mobilephone, req.params.id],
+    (err, result) => {
+      if (err) return send(res, 500, true, null, err.message);
+      if (result.affectedRows === 0) return send(res, 404, true, null, 'Student not found.');
+      send(res, 200, false, result, 'Student has been updated successfully.');
+    }
+  );
+});
+
+// DELETE
+app.delete('/student/:id', (req, res) => {
+  db.query('DELETE FROM personal_info WHERE StudentID = ?', [req.params.id], (err, result) => {
+    if (err) return send(res, 500, true, null, err.message);
+    if (result.affectedRows === 0) return send(res, 404, true, null, 'Student not found.');
+    send(res, 200, false, result, 'Student has been deleted successfully.');
+  });
+});
+
+app.listen(3000, () => console.log('Server running at http://localhost:3000'));</script></pre></div>
+<p>ลำดับค่าใน array ต้องตรงกับลำดับ ? ใน SQL id อยู่ท้ายสุดเพราะ ? ตัวสุดท้ายอยู่ใน WHERE</p>
+<p>UPDATE และ DELETE ไม่คืนแถวกลับมา แต่คืน <code>affectedRows</code> ว่ากระทบกี่แถว ถ้าเป็น 0 แปลว่าไม่มี id นั้น จึงตอบ 404 ได้ ข้อสอบชอบถามเรื่องนี้: SELECT ดู <code>rows.length</code> ส่วนคำสั่งที่แก้ข้อมูลดู <code>affectedRows</code></p></div>
+
+<div class="fix"><h3>จุดที่ควรแก้</h3>
+<p>user และรหัสผ่าน DB เขียนไว้ในโค้ดตรง ๆ ซึ่งตรงข้ามกับที่เรียนใน L11 ควรย้ายไป .env แล้วเพิ่ม .env ไว้ใน .gitignore (repo นี้มี .gitignore ให้อยู่แล้ว)</p>
+<div class="codebox"><div class="cap">แก้แล้ว</div><pre><script type="text/plain">require('dotenv').config();
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  dateStrings: true,
+});</script></pre></div>
+<p>โจทย์เรียกคอลัมน์วันเกิดว่า Birthdate แต่โค้ดใช้ DOB ถ้าตารางจริงตั้งชื่อ DOB ก็ใช้ได้ แค่ชื่อในโค้ดกับในตารางต้องตรงกัน ไม่งั้น MySQL จะแจ้ง Unknown column</p>
+<p>ถ้าจะเรียก service นี้จากหน้า HTML ที่เปิดคนละ port (แบบ studentform.html ในสไลด์) ต้องเพิ่ม <code>app.use(cors())</code> ส่วน Postman ไม่ติด CORS เพราะไม่ใช่ browser</p></div>
+</div></div>
+</div></section>
+
+<section class="lec band react view labpage" id="lab14"><div class="wrap">
+<div class="lhead"><span class="tag">Lab14</span><h2>InfoForm สองแบบด้วย React</h2></div>
+<p class="lede">โจทย์: ทำ component InfoForm ที่แสดงฟอร์มได้สองแบบตาม <code>props.type</code> แบบ normal มีชื่อ นามสกุล อายุ แบบ special เพิ่มสัญชาติกับความพิการ กด Submit แล้ว alert ข้อมูล เนื้อหาอยู่ในบท <a href="#l14">L14</a></p>
+<div class="grid"><div>
+<p class="src">ไฟล์ที่ส่ง: <code>reactlab/src/index.js</code> (โปรเจกต์สร้างด้วย create-react-app)</p>
+
+<div class="step"><h3><span class="n">1</span>import</h3>
+<div class="codebox"><div class="cap">index.js</div><pre><script type="text/plain">import React from "react";
+import ReactDOM from "react-dom/client";</script></pre></div>
+<p><code>react</code> คือตัว React เอง ส่วน <code>react-dom/client</code> มี <code>createRoot</code> ไว้เอา component ไปวางลงหน้าเว็บ โค้ดทั้งหมดอยู่ใน index.js ไฟล์เดียว App.js ที่มากับโปรเจกต์ไม่ได้ใช้</p></div>
+
+<div class="step"><h3><span class="n">2</span>ตอนกด Submit</h3>
+<div class="codebox"><div class="cap">index.js</div><pre><script type="text/plain">function InfoForm(props) {
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const data = new FormData(event.target);
+
+    const firstName = data.get("firstName");
+    const lastName = data.get("lastName");
+    const age = data.get("age");
+    const nationality = data.get("nationality");
+
+    if (props.type === "normal") {
+      alert(`Hello, ${firstName} ${lastName}\nYour age is ${age}`);
+    } else {
+      alert(`Hello, ${firstName} ${lastName}\nYour nationality is ${nationality}`);
+    }
+  };</script></pre></div>
+<p>InfoForm เป็น function component รับ <code>props</code> จากคนที่เรียกใช้ ข้างในประกาศ handleSubmit เป็น arrow function</p>
+<p><code>event.preventDefault()</code> ห้ามไม่ให้ฟอร์มส่งแล้วรีโหลดหน้าเอง (ใน React ใช้ return false ไม่ได้) จากนั้น <code>new FormData(event.target)</code> อ่านค่าทุกช่องของฟอร์มที่เพิ่ง submit แล้ว <code>data.get("ชื่อ")</code> ดึงค่าตาม attribute <code>name</code> ของ input</p>
+<p>สุดท้ายเช็ค <code>props.type</code> เพื่อเลือกข้อความ <code>\n</code> ใน template literal คือขึ้นบรรทัดใหม่ใน alert</p></div>
+
+<div class="step"><h3><span class="n">3</span>วาดฟอร์ม และแสดงช่องพิเศษตามเงื่อนไข</h3>
+<div class="codebox"><div class="cap">index.js</div><pre><script type="text/plain">  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+
+        <div>
+          First Name:
+          <input type="text" name="firstName" />
+        </div>
+
+        <div>
+          Last Name:
+          <input type="text" name="lastName" />
+        </div>
+
+        <div>
+          Age:
+          <input type="number" name="age" />
+        </div>
+
+        {props.type === "special" && (
+          <>
+            <div>
+              Pick your nationality:
+              <select name="nationality">
+                <option value="Thai">Thai</option>
+                <option value="Chinese">Chinese</option>
+                <option value="Japanese">Japanese</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              Disability:
+              <select name="disability">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
+          </>
+        )}
+
+        <button type="submit">Submit</button>
+
+      </form>
+    </div>
+  );
+}</script></pre></div>
+<p><code>onSubmit={handleSubmit}</code> ผูก event แบบ React คือ camelCase และส่งฟังก์ชันเข้าไป ไม่ได้เป็น string</p>
+<p>บรรทัด <code>{props.type === "special" &amp;&amp; ( ... )}</code> คือเทคนิคแสดงตามเงื่อนไข ถ้าเงื่อนไขซ้ายเป็น false ทั้งก้อนจะไม่ถูกวาด ถ้า true จะได้ JSX ทางขวา ส่วน <code>&lt;&gt; ... &lt;/&gt;</code> คือ Fragment ใช้ห่อหลาย element โดยไม่เพิ่ม div เกินเข้าไปในหน้า (JSX ต้องคืนก้อนเดียว)</p>
+<p>ฟอร์มนี้เป็นแบบ <b>uncontrolled</b> คือปล่อยให้ input เก็บค่าเอง แล้วค่อยอ่านตอน submit ต่างจาก controlled ในสไลด์ที่ผูกค่ากับ state ทุกครั้งที่พิมพ์</p></div>
+
+<div class="step"><h3><span class="n">4</span>เอาไปแสดงบนหน้า</h3>
+<div class="codebox"><div class="cap">index.js</div><pre><script type="text/plain">const root = ReactDOM.createRoot(
+  document.getElementById("root")
+);
+
+root.render(
+  <InfoForm type="special" />
+);</script></pre></div>
+<p>หา <code>&lt;div id="root"&gt;</code> ใน public/index.html สร้าง root แล้ว render InfoForm พร้อมส่ง prop <code>type="special"</code> อยากดูแบบ normal ก็เปลี่ยนเป็น <code>type="normal"</code> ส่วน README ของแลปใช้ <code>ReactDOM.render(...)</code> ซึ่งเป็นวิธีเก่า React 18 ขึ้นไปใช้ createRoot แบบในโค้ดนี้</p></div>
+
+<div class="fix"><h3>จุดที่ควรแก้</h3>
+<p>โจทย์เขียนว่าให้พัฒนา "คลาส InfoForm" แต่โค้ดเป็น function component ทำงานได้เหมือนกัน แต่ถ้าข้อสอบให้เขียนแบบ class ควรเขียนได้ด้วย ลองเทียบกับเวอร์ชัน class แบบ controlled ข้างล่าง</p>
+<div class="codebox"><div class="cap">เวอร์ชัน class (controlled)</div><pre><script type="text/plain">class InfoForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { firstName: "", lastName: "", age: "", nationality: "Thai", disability: "No" };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+  handleChange(e) { this.setState({ [e.target.name]: e.target.value }); }
+  handleSubmit(e) {
+    e.preventDefault();
+    const s = this.state;
+    if (this.props.type === "normal") alert(`Hello, ${s.firstName} ${s.lastName}\nYour age is ${s.age}`);
+    else alert(`Hello, ${s.firstName} ${s.lastName}\nYour nationality is ${s.nationality}`);
+  }
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <input name="firstName" value={this.state.firstName} onChange={this.handleChange} />
+        {/* ... ช่องอื่นทำแบบเดียวกัน ... */}
+        {this.props.type === "special" && (
+          <select name="nationality" value={this.state.nationality} onChange={this.handleChange}>
+            <option value="Thai">Thai</option>
+          </select>
+        )}
+        <button type="submit">Submit</button>
+      </form>
+    );
+  }
+}</script></pre></div>
+<p>อีกเรื่อง: ฟอร์ม special มีช่อง Disability แต่ alert ไม่ได้แสดงค่านี้ ถ้าตัวอย่างผลลัพธ์ในโจทย์มีแสดงด้วย ต้องเพิ่ม <code>data.get("disability")</code> ลงในข้อความ</p></div>
 </div></div>
 </div></section>
 
@@ -1286,6 +1770,17 @@ chapters.forEach(([id, name], i) => {
   p.innerHTML = (prev ? `<a href="#${prev[0]}"><small>บทก่อนหน้า</small>${prev[1]}</a>` : `<a href="#home"><small>กลับ</small>หน้าแรก</a>`)
     + `<a class="go" href="#quiz-${id}"><small>ทดสอบตัวเอง</small>ทำข้อสอบบทนี้ ${cnt(L)} ข้อ</a>`
     + (next ? `<a class="next" href="#${next[0]}"><small>บทถัดไป</small>${next[1]}</a>` : `<a class="next" href="#cheat"><small>ต่อไป</small>ชีทท่องจำ</a>`);
+  sec.querySelector(".wrap").appendChild(p);
+});
+
+const labs = [["lab09","Lab09 Hello server"],["lab10","Lab10 Express + form"],["lab11","Lab11 tinycollege"],["lab12","Lab12 spoonacular"],["lab13","Lab13 StudentService"],["lab14","Lab14 InfoForm"]];
+labs.forEach(([id, name], i) => {
+  const sec = document.getElementById(id); if (!sec) return;
+  const prev = labs[i - 1], next = labs[i + 1], lec = "l" + id.slice(3);
+  const p = document.createElement("div"); p.className = "pager";
+  p.innerHTML = (prev ? `<a href="#${prev[0]}"><small>แลปก่อนหน้า</small>${prev[1]}</a>` : `<a href="#home"><small>กลับ</small>หน้าแรก</a>`)
+    + `<a class="go" href="#${lec}"><small>เนื้อหาที่ใช้ในแลปนี้</small>อ่านบท ${lec.toUpperCase()}</a>`
+    + (next ? `<a class="next" href="#${next[0]}"><small>แลปถัดไป</small>${next[1]}</a>` : `<a class="next" href="#quiz"><small>ต่อไป</small>ข้อสอบฝึก</a>`);
   sec.querySelector(".wrap").appendChild(p);
 });
 const views = [...document.querySelectorAll(".view")];
